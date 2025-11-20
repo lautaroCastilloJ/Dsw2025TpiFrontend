@@ -1,37 +1,39 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_BACKEND_URL
 });
 
+// Interceptor para agregar el token automáticamente
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
+// Interceptor para manejar errores de autenticación
 instance.interceptors.response.use(
-  (config) => { return config; },
+  (response) => response,
   (error) => {
-    if (error.status === 401) {
-      if (window.location.pathname.includes('/admin/')) {
-        localStorage.clear();
-        window.location.href = '/login';
-      } else {
-        localStorage.removeItem('token');
-      }
+    if (error.response?.status === 401) {
+      // Token expirado o inválido - redirigir al login
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('role');
+      localStorage.removeItem('customerId');
+      window.location.href = '/login';
     }
-
     return Promise.reject(error);
-  },
+  }
 );
 
 export { instance };
+
+
