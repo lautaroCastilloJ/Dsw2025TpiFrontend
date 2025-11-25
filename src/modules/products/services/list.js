@@ -1,6 +1,7 @@
 import { instance } from '../../shared/api/axiosInstance';
 
-export const getProducts = async ({ 
+// Para administradores: obtiene todos los productos con filtros
+export const getProductsAdmin = async ({ 
   search = null, 
   status = null, 
   pageNumber = 1, 
@@ -24,3 +25,28 @@ export const getProducts = async ({
     };
   }
 };
+
+// Para usuarios públicos: obtiene solo productos activos
+export const getProductsPublic = async ({ 
+  pageNumber = 1, 
+  pageSize = 10 
+} = {}) => {
+  try {
+    const params = {
+      pageNumber,
+      pageSize,
+    };
+
+    const response = await instance.get('api/products', { params });
+
+    return { data: response.data, error: null };
+  } catch (error) {
+    return { 
+      data: null, 
+      error: error.response?.data?.message || 'Error al obtener productos' 
+    };
+  }
+};
+
+// Mantener retrocompatibilidad con el nombre anterior
+export const getProducts = getProductsAdmin;

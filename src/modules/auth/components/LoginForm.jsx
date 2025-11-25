@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import useAuth from '../hook/useAuth';
@@ -23,18 +24,37 @@ function LoginForm() {
       const { error } = await singin(formData.username, formData.password);
 
       if (error) {
-        setErrorMessage(error.frontendErrorMessage);
-
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al iniciar sesión',
+          text: error.frontendErrorMessage || error,
+          confirmButtonColor: '#3085d6',
+        });
         return;
       }
 
-      navigate('/admin/home');
+      Swal.fire({
+        icon: 'success',
+        title: '¡Bienvenido!',
+        text: 'Inicio de sesión exitoso',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      setTimeout(() => {
+        navigate('/admin/home');
+      }, 1500);
     } catch (error) {
-      if (error?.response?.data?.code) {
-        setErrorMessage(frontendErrorMessage[error?.response?.data?.code]);
-      } else {
-        setErrorMessage('Llame a soporte');
-      }
+      const message = error?.response?.data?.code 
+        ? frontendErrorMessage[error?.response?.data?.code]
+        : 'Error inesperado. Llame a soporte';
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        confirmButtonColor: '#3085d6',
+      });
     }
   };
 
@@ -69,8 +89,7 @@ function LoginForm() {
       />
 
       <Button type='submit'>Iniciar Sesión</Button>
-      <Button variant='secondary' onClick={() => alert('Debe impletar navegacion y pagina de registro')}>Registrar Usuario</Button>
-      {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
+      <Button variant='secondary' onClick={() => navigate('/register')}>Registrar Usuario</Button>
     </form>
   );
 };
