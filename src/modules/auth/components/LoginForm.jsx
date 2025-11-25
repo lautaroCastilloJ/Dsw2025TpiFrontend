@@ -17,7 +17,7 @@ function LoginForm() {
 
   const navigate = useNavigate();
 
-  const { singin } = useAuth();
+  const { singin, role: userRole } = useAuth();
 
   const onValid = async (formData) => {
     try {
@@ -42,7 +42,8 @@ function LoginForm() {
       });
 
       setTimeout(() => {
-        navigate('/admin/home');
+        // Navegar a la página principal para todos los usuarios
+        navigate('/');
       }, 1500);
     } catch (error) {
       const message = error?.response?.data?.code 
@@ -89,7 +90,6 @@ function LoginForm() {
       />
 
       <Button type='submit'>Iniciar Sesión</Button>
-      <Button variant='secondary' onClick={() => navigate('/register')}>Registrar Usuario</Button>
     </form>
   );
 };

@@ -12,6 +12,7 @@ export const login = async (username, password) => {
     
     localStorage.setItem('token', token);
     localStorage.setItem('role', role);
+    localStorage.setItem('username', username);
     if (customerId) {
       localStorage.setItem('customerId', customerId);
     }

@@ -5,6 +5,7 @@ import RegisterPage from './modules/auth/pages/RegisterPage';
 import Dashboard from './modules/templates/components/Dashboard';
 import ProtectedRoute from './modules/auth/components/ProtectedRoute';
 import ListOrdersPage from './modules/orders/pages/ListOrdersPage';
+import MyOrdersPage from './modules/orders/pages/MyOrdersPage';
 import Home from './modules/home/pages/Home';
 import ListProductsPage from './modules/products/pages/ListProductsPage';
 import CreateProductPage from './modules/products/pages/CreateProductPage';
@@ -38,6 +39,14 @@ function App() {
         {
           path: '/cart',
           element: <>Carrito de compras</>,
+        },
+        {
+          path: '/customer/orders',
+          element: (
+            <ProtectedRoute>
+              <MyOrdersPage />
+            </ProtectedRoute>
+          ),
         },
       ],
     },
