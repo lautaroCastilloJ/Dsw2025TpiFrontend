@@ -1,4 +1,5 @@
 import { instance } from '../../shared/api/axiosInstance';
+import { handleApiError } from '../../shared/helpers/errorMessages';
 
 export const register = async (userData) => {
   try {
@@ -21,7 +22,7 @@ export const register = async (userData) => {
     
     return { 
       data: null, 
-      error: error.response?.data?.message || 'Error al registrar usuario' 
+      error: handleApiError(error)
     };
   }
 };

@@ -1,11 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import Button from '../../shared/components/Button';
 import Card from '../../shared/components/Card';
 import Input from '../../shared/components/Input';
 import { createProduct } from '../services/create';
-import { useState } from 'react';
-import { frontendErrorMessage } from '../helpers/backendError';
 
 function CreateProductForm() {
   const {
@@ -23,23 +22,32 @@ function CreateProductForm() {
     },
   });
 
-  const [errorBackendMessage, setErrorBackendMessage] = useState('');
   const navigate = useNavigate();
 
   const onValid = async (formData) => {
-    try {
-      await createProduct(formData);
+    const { data, error } = await createProduct(formData);
 
-      navigate('/admin/products');
-    } catch (error) {
-      if (error.response?.data?.detail) {
-        const errorMessage = frontendErrorMessage[error.response.data.code];
-
-        setErrorBackendMessage(errorMessage);
-      } else {
-        setErrorBackendMessage('Contactar a Soporte');
-      }
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al crear producto',
+        text: error,
+        confirmButtonColor: '#3085d6',
+      });
+      return;
     }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Producto creado',
+      text: 'El producto se ha creado exitosamente',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    setTimeout(() => {
+      navigate('/admin/products');
+    }, 1500);
   };
 
   return (
@@ -82,29 +90,26 @@ function CreateProductForm() {
         />
         <Input
           label='Precio'
-          error={errors.price?.message}
           type='number'
+          step='0.01'
+          error={errors.price?.message}
           {...register('price', {
-            min: {
-              value: 0,
-              message: 'No puede tener un precio negativo',
-            },
+            required: 'Precio es requerido',
+            valueAsNumber: true,
           })}
         />
         <Input
           label='Stock'
+          type='number'
           error={errors.stock?.message}
           {...register('stock', {
-            min: {
-              value: 0,
-              message: 'No puede tener un stock negativo',
-            },
+            required: 'Stock es requerido',
+            valueAsNumber: true,
           })}
         />
         <div className='sm:text-end'>
           <Button type='submit' className='w-full sm:w-fit'>Crear Producto</Button>
         </div>
-        {errorBackendMessage && <span className='text-red-500'>{errorBackendMessage}</span>}
       </form>
     </Card>
   );

@@ -1,4 +1,5 @@
 import { instance } from '../../shared/api/axiosInstance';
+import { handleApiError } from '../../shared/helpers/errorMessages';
 
 // Para administradores: obtiene todos los productos con filtros
 export const getProductsAdmin = async ({ 
@@ -43,7 +44,7 @@ export const getProductsPublic = async ({
   } catch (error) {
     return { 
       data: null, 
-      error: error.response?.data?.message || 'Error al obtener productos' 
+      error: handleApiError(error)
     };
   }
 };

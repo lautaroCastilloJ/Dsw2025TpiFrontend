@@ -25,9 +25,12 @@ export const login = async (username, password) => {
       status: error.response?.status
     });
     
+    // Importar handleApiError si no está importado
+    const { handleApiError } = await import('../../shared/helpers/errorMessages');
+    
     return { 
       data: null, 
-      error: error.response?.data?.message || 'Error al iniciar sesión' 
+      error: handleApiError(error)
     };
   }
 };

@@ -1,4 +1,5 @@
 import { instance } from '../../shared/api/axiosInstance';
+import { handleApiError } from '../../shared/helpers/errorMessages';
 
 // Para clientes: obtener sus propias órdenes
 export const getMyOrders = async ({ 
@@ -27,7 +28,7 @@ export const getMyOrders = async ({
     console.error('Error fetching my orders:', error);
     return { 
       data: null, 
-      error: error.response?.data?.message || error.message || 'Error al obtener órdenes' 
+      error: handleApiError(error)
     };
   }
 };
@@ -41,19 +42,30 @@ export const getOrdersAdmin = async ({
 } = {}) => {
   try {
     const params = {
-      ...(status && { status }),
-      ...(customerId && { customerId }),
       pageNumber,
       pageSize,
     };
 
+    if (status) {
+      params.status = status;
+    }
+
+    if (customerId) {
+      params.customerId = customerId;
+    }
+
+    console.log('Fetching admin orders with params:', params);
+
     const response = await instance.get('/api/orders/admin', { params });
+
+    console.log('Admin orders response:', response.data);
 
     return { data: response.data, error: null };
   } catch (error) {
+    console.error('Error fetching admin orders:', error);
     return { 
       data: null, 
-      error: error.response?.data?.message || 'Error al obtener órdenes' 
+      error: handleApiError(error)
     };
   }
 };

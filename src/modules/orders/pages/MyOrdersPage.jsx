@@ -17,7 +17,9 @@ function MyOrdersPage() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const fetchOrders = async () => {
     try {
@@ -35,18 +37,22 @@ function MyOrdersPage() {
         return;
       }
 
-      console.log('Orders response:', data);
+      console.log('My orders response:', data);
       
-      // Manejar diferentes formatos de respuesta
-      if (Array.isArray(data)) {
-        setOrders(data);
-      } else if (data && Array.isArray(data.items)) {
+      // Manejar respuesta paginada del backend
+      if (data && Array.isArray(data.items)) {
         setOrders(data.items);
-      } else if (data && typeof data === 'object') {
-        // Si data es un objeto pero no tiene items, intentar convertirlo a array
-        setOrders([]);
+        setTotalCount(data.totalCount || 0);
+        setTotalPages(data.totalPages || 0);
+      } else if (Array.isArray(data)) {
+        // Fallback si el backend devuelve array directo
+        setOrders(data);
+        setTotalCount(data.length);
+        setTotalPages(1);
       } else {
         setOrders([]);
+        setTotalCount(0);
+        setTotalPages(0);
       }
     } catch (err) {
       console.error('Error fetching orders:', err);
@@ -58,7 +64,16 @@ function MyOrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, [status, pageNumber]);
+  }, [status, pageNumber, pageSize]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
 
   if (loading) {
     return (
@@ -84,27 +99,26 @@ function MyOrdersPage() {
   return (
     <div>
       <Card>
-        <div className='flex justify-between items-center mb-4'>
-          <h1 className='text-3xl'>Mis Órdenes</h1>
-        </div>
+        <h1 className='text-3xl mb-4'>Mis Órdenes</h1>
 
-        <div className='mb-4'>
-          <label className="mr-2">Filtrar por estado:</label>
-          <select 
-            value={status || ''} 
-            onChange={(e) => {
-              setStatus(e.target.value || null);
-              setPageNumber(1);
-            }}
-            className="border rounded px-3 py-2"
-          >
-            <option value="">Todos</option>
-            <option value="Pending">Pendiente</option>
-            <option value="Processing">En Proceso</option>
-            <option value="Shipped">Enviado</option>
-            <option value="Delivered">Entregado</option>
-            <option value="Cancelled">Cancelado</option>
-          </select>
+        <div className='flex flex-col sm:flex-row gap-4 mb-6'>
+          <div className="flex items-center gap-2">
+            <select 
+              value={status || ''} 
+              onChange={(e) => {
+                setStatus(e.target.value || null);
+                setPageNumber(1);
+              }}
+              className="border rounded px-4 py-2 bg-white"
+            >
+              <option value="">Estado de Orden</option>
+              <option value="Pending">Pendiente</option>
+              <option value="Processing">En Proceso</option>
+              <option value="Shipped">Enviado</option>
+              <option value="Delivered">Entregado</option>
+              <option value="Cancelled">Cancelado</option>
+            </select>
+          </div>
         </div>
 
         {orders.length === 0 ? (
@@ -112,52 +126,141 @@ function MyOrdersPage() {
             <p className="text-gray-600">No tienes órdenes aún</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Fecha</th>
-                  <th className="border p-2 text-left">Estado</th>
-                  <th className="border p-2 text-left">Dirección de Envío</th>
-                  <th className="border p-2 text-right">Total</th>
-                  <th className="border p-2 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="border p-2">
-                      {new Date(order.date).toLocaleDateString()}
-                    </td>
-                    <td className="border p-2">
-                      <span className={`px-2 py-1 rounded text-sm ${
+          <div className="space-y-4">
+            {orders.map((order) => (
+              <Card key={order.id} className="hover:shadow-lg transition-shadow">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h2 className="text-lg font-semibold">
+                        Orden #{order.id.substring(0, 8)}
+                      </h2>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
                         order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
                         order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
+                        order.status === 'Processing' ? 'bg-purple-100 text-purple-800' :
                         'bg-yellow-100 text-yellow-800'
                       }`}>
                         {orderStatusLabels[order.status] || order.status}
                       </span>
-                    </td>
-                    <td className="border p-2">{order.shippingAddress}</td>
-                    <td className="border p-2 text-right">
-                      ${order.totalAmount?.toFixed(2) || '0.00'}
-                    </td>
-                    <td className="border p-2 text-center">
-                      <Button 
-                        className="text-sm px-3 py-1"
-                        onClick={() => alert(`Ver detalles de orden ${order.id}`)}
-                      >
-                        Ver Detalles
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      Fecha: {formatDate(order.date)}
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      Total: ${order.totalAmount?.toFixed(2)}
+                    </p>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Envío: {order.shippingAddress}
+                    </p>
+                    {order.notes && (
+                      <p className="text-gray-600 text-sm mt-1 italic">
+                        Notas: {order.notes}
+                      </p>
+                    )}
+                    {order.items && order.items.length > 0 && (
+                      <div className="mt-2 text-sm text-gray-500">
+                        {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
+                      </div>
+                    )}
+                  </div>
+                  <Button 
+                    className="text-sm px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-800"
+                    onClick={() => alert(`Ver detalles de orden ${order.id}`)}
+                  >
+                    Ver
+                  </Button>
+                </div>
+              </Card>
+            ))}
           </div>
         )}
       </Card>
+
+      {!loading && orders.length > 0 && (
+        <div className='flex flex-col sm:flex-row justify-center items-center gap-3 mt-4'>
+          <button
+            disabled={pageNumber === 1}
+            onClick={() => setPageNumber(pageNumber - 1)}
+            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors'
+          >
+            ← Previous
+          </button>
+          
+          <div className="flex items-center gap-2">
+            {pageNumber > 2 && (
+              <>
+                <button
+                  onClick={() => setPageNumber(1)}
+                  className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
+                >
+                  1
+                </button>
+                {pageNumber > 3 && <span className="px-2">...</span>}
+              </>
+            )}
+            
+            {pageNumber > 1 && (
+              <button
+                onClick={() => setPageNumber(pageNumber - 1)}
+                className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
+              >
+                {pageNumber - 1}
+              </button>
+            )}
+            
+            <button
+              className='px-3 py-2 bg-purple-600 text-white rounded'
+            >
+              {pageNumber}
+            </button>
+            
+            {pageNumber < totalPages && (
+              <button
+                onClick={() => setPageNumber(pageNumber + 1)}
+                className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
+              >
+                {pageNumber + 1}
+              </button>
+            )}
+            
+            {pageNumber < totalPages - 1 && (
+              <>
+                {pageNumber < totalPages - 2 && <span className="px-2">3</span>}
+                {pageNumber < totalPages - 2 && <span className="px-2">...</span>}
+                <button
+                  onClick={() => setPageNumber(totalPages)}
+                  className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+          
+          <button
+            disabled={pageNumber === totalPages}
+            onClick={() => setPageNumber(pageNumber + 1)}
+            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors'
+          >
+            Next →
+          </button>
+
+          <select
+            value={pageSize}
+            onChange={evt => {
+              setPageNumber(1);
+              setPageSize(Number(evt.target.value));
+            }}
+            className='ml-3 px-3 py-2 border rounded bg-white'
+          >
+            <option value="10">10 por página</option>
+            <option value="20">20 por página</option>
+            <option value="50">50 por página</option>
+          </select>
+        </div>
+      )}
     </div>
   );
 }

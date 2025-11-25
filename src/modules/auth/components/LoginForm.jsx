@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import useAuth from '../hook/useAuth';
-import { frontendErrorMessage } from '../helpers/backendError';
+import { handleApiError } from '../../shared/helpers/errorMessages';
 
 function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
@@ -27,7 +27,7 @@ function LoginForm() {
         Swal.fire({
           icon: 'error',
           title: 'Error al iniciar sesión',
-          text: error.frontendErrorMessage || error,
+          text: error,
           confirmButtonColor: '#3085d6',
         });
         return;
@@ -46,9 +46,7 @@ function LoginForm() {
         navigate('/');
       }, 1500);
     } catch (error) {
-      const message = error?.response?.data?.code 
-        ? frontendErrorMessage[error?.response?.data?.code]
-        : 'Error inesperado. Llame a soporte';
+      const message = handleApiError(error);
       
       Swal.fire({
         icon: 'error',
