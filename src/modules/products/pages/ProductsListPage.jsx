@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductsPublic } from '../services/list';
+import { useCart } from '../../cart/context/CartContext';
 import Card from '../../shared/components/Card';
 import Button from '../../shared/components/Button';
+import Swal from 'sweetalert2';
 
 function ProductsListPage() {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,8 +49,16 @@ function ProductsListPage() {
   }, [pageNumber]);
 
   const handleAddToCart = (product) => {
-    console.log('Agregar al carrito:', product);
-    // Aquí implementarías la lógica del carrito
+    addToCart(product, 1);
+    Swal.fire({
+      icon: 'success',
+      title: 'Producto agregado',
+      text: `${product.name} fue agregado al carrito`,
+      showConfirmButton: false,
+      timer: 1500,
+      toast: true,
+      position: 'top-end',
+    });
   };
 
   if (loading) {

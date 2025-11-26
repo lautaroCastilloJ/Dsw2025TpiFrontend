@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../auth/hook/useAuth';
+import { useCart } from '../../cart/context/CartContext';
 import Button from './Button';
 
 function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, role, username, singout } = useAuth();
+  const { getCartItemsCount } = useCart();
 
   const handleLogout = () => {
     singout();

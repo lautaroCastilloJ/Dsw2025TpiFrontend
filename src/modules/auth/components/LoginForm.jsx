@@ -42,8 +42,15 @@ function LoginForm() {
       });
 
       setTimeout(() => {
-        // Navegar a la página principal para todos los usuarios
-        navigate('/');
+        // Obtener el rol del localStorage después del login
+        const role = localStorage.getItem('role');
+        
+        // Redirigir según el rol
+        if (role === 'Administrador') {
+          navigate('/admin/home');
+        } else {
+          navigate('/');
+        }
       }, 1500);
     } catch (error) {
       const message = handleApiError(error);

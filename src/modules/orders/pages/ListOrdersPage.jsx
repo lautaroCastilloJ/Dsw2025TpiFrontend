@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getOrdersAdmin } from '../services/listServices';
 import Card from '../../shared/components/Card';
 import Button from '../../shared/components/Button';
@@ -12,6 +13,7 @@ const orderStatusLabels = {
 };
 
 function ListOrdersPage() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -191,7 +193,7 @@ function ListOrdersPage() {
                   </div>
                   <Button 
                     className="text-sm px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-800"
-                    onClick={() => alert(`Ver detalles de orden ${order.id}`)}
+                    onClick={() => navigate(`/order/${order.id}`)}
                   >
                     Ver
                   </Button>
