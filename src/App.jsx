@@ -11,6 +11,7 @@ import OrderDetailPage from './modules/orders/pages/OrderDetailPage';
 import Home from './modules/home/pages/Home';
 import ListProductsPage from './modules/products/pages/ListProductsPage';
 import CreateProductPage from './modules/products/pages/CreateProductPage';
+import EditProductPage from './modules/products/pages/EditProductPage';
 import ProductsListPage from './modules/products/pages/ProductsListPage';
 import CartPage from './modules/cart/pages/CartPage';
 import CheckoutPage from './modules/cart/pages/CheckoutPage';
@@ -97,6 +98,10 @@ function App() {
         {
           path: '/admin/products/create',
           element: <CreateProductPage />,
+        },
+        {
+          path: '/admin/products/edit/:productId',
+          element: <EditProductPage />,
         },
         {
           path: '/admin/orders',

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../shared/components/Button';
 import Card from '../../shared/components/Card';
 import { getProducts } from '../services/list';
+import { toggleProductEnabled } from '../services/update';
+import Swal from 'sweetalert2';
 
 const productStatus = {
   ALL: null,  // ← Cambiado de 'all' a null
@@ -24,6 +26,7 @@ function ListProductsPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);  // ← Nuevo para manejar errores
+  const [togglingId, setTogglingId] = useState(null);  // ← ID del producto que se está cambiando
 
   const fetchProducts = async () => {
     try {
@@ -60,6 +63,50 @@ function ListProductsPage() {
   const handleSearch = async () => {
     setPageNumber(1);  // ← Reset a página 1 al buscar
     await fetchProducts();
+  };
+
+  const handleToggleProduct = async (productId, currentStatus) => {
+    setTogglingId(productId);
+    try {
+      const { data, error } = await toggleProductEnabled(productId, currentStatus);
+
+      if (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error,
+        });
+        setTogglingId(null);
+        return;
+      }
+
+      console.log('Toggle response:', data);
+
+      // Actualizar el producto en la lista local con el nuevo estado
+      const newStatus = data?.isActive !== undefined ? data.isActive : !currentStatus;
+      setProducts(prevProducts => 
+        prevProducts.map(p => 
+          p.id === productId ? { ...p, isActive: newStatus } : p
+        )
+      );
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Estado actualizado',
+        text: `El producto se ${newStatus ? 'activó' : 'desactivó'} correctamente`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error('Error toggling product status:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al cambiar el estado del producto',
+      });
+    } finally {
+      setTogglingId(null);
+    }
   };
 
   return (
@@ -152,9 +199,20 @@ function ListProductsPage() {
               <div className='flex gap-2'>
                 <Button 
                   onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                  className='text-sm'
+                  className='text-sm !bg-blue-600 hover:!bg-blue-700 !text-white'
                 >
                   Editar
+                </Button>
+                <Button 
+                  onClick={() => handleToggleProduct(product.id, product.isActive)}
+                  disabled={togglingId === product.id}
+                  className={`text-sm !text-white ${
+                    product.isActive 
+                      ? '!bg-red-600 hover:!bg-red-700' 
+                      : '!bg-green-600 hover:!bg-green-700'
+                  }`}
+                >
+                  {togglingId === product.id ? '...' : (product.isActive ? 'Desactivar' : 'Activar')}
                 </Button>
               </div>
             </div>
