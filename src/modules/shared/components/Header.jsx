@@ -2,12 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../auth/hook/useAuth';
 import { useCart } from '../../cart/context/CartContext';
+import LoginModal from '../../auth/components/LoginModal';
+import RegisterModal from '../../auth/components/RegisterModal';
 
 function Header() {
   const navigate = useNavigate();
   const { isAuthenticated, role, username, singout } = useAuth();
   const { getCartItemsCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const handleLogout = () => {
     singout();
@@ -75,18 +79,12 @@ function Header() {
               </>
             ) : (
               <>
-                <Link
-                  to="/login"
+                <button
+                  onClick={() => setShowLoginModal(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white text-xs lg:text-sm font-medium px-3 lg:px-4 py-2 rounded transition-colors"
                 >
                   Iniciar Sesión
-                </Link>
-                <Link
-                  to="/signup"
-                  className="bg-green-600 hover:bg-green-700 text-white text-xs lg:text-sm font-medium px-3 lg:px-4 py-2 rounded transition-colors"
-                >
-                  Registrarse
-                </Link>
+                </button>
               </>
             )}
           </nav>
@@ -141,26 +139,37 @@ function Header() {
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition-colors text-center"
-                    onClick={() => setMobileMenuOpen(false)}
+                  <button
+                    onClick={() => {
+                      setShowLoginModal(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded transition-colors text-center"
                   >
                     Iniciar Sesión
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded transition-colors text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Registrarse
-                  </Link>
+                  </button>
                 </>
               )}
             </div>
           </nav>
         )}
       </div>
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToRegister={() => {
+          setShowLoginModal(false);
+          setShowRegisterModal(true);
+        }}
+      />
+      <RegisterModal 
+        isOpen={showRegisterModal} 
+        onClose={() => setShowRegisterModal(false)}
+        onSwitchToLogin={() => {
+          setShowRegisterModal(false);
+          setShowLoginModal(true);
+        }}
+      />
     </header>
   );
 }
