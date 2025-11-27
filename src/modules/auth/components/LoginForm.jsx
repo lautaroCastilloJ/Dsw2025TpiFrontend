@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import useAuth from '../hook/useAuth';
-import { frontendErrorMessage } from '../helpers/backendError';
+import { handleApiError } from '../../shared/helpers/errorMessages';
 
 function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
@@ -16,25 +17,50 @@ function LoginForm() {
 
   const navigate = useNavigate();
 
-  const { singin } = useAuth();
+  const { singin, role: userRole } = useAuth();
 
   const onValid = async (formData) => {
     try {
       const { error } = await singin(formData.username, formData.password);
 
       if (error) {
-        setErrorMessage(error.frontendErrorMessage);
-
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al iniciar sesión',
+          text: error,
+          confirmButtonColor: '#3085d6',
+        });
         return;
       }
 
-      navigate('/admin/home');
+      Swal.fire({
+        icon: 'success',
+        title: '¡Bienvenido!',
+        text: 'Inicio de sesión exitoso',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      setTimeout(() => {
+        // Obtener el rol del localStorage después del login
+        const role = localStorage.getItem('role');
+        
+        // Redirigir según el rol
+        if (role === 'Administrador') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      }, 1500);
     } catch (error) {
-      if (error?.response?.data?.code) {
-        setErrorMessage(frontendErrorMessage[error?.response?.data?.code]);
-      } else {
-        setErrorMessage('Llame a soporte');
-      }
+      const message = handleApiError(error);
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+        confirmButtonColor: '#3085d6',
+      });
     }
   };
 
@@ -69,8 +95,6 @@ function LoginForm() {
       />
 
       <Button type='submit'>Iniciar Sesión</Button>
-      <Button variant='secondary' onClick={() => alert('Debe impletar navegacion y pagina de registro')}>Registrar Usuario</Button>
-      {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
     </form>
   );
 };
