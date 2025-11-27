@@ -29,29 +29,32 @@ function Dashboard() {
           <div className="flex justify-between items-center">
             <button
               onClick={() => navigate('/')}
-              className="text-2xl font-bold hover:text-gray-300 transition cursor-pointer"
+              className="text-lg sm:text-xl lg:text-2xl font-bold hover:text-gray-300 transition cursor-pointer"
             >
-              TPI Store - Admin
+              <span className="hidden sm:inline">TPI Store - Admin</span>
+              <span className="sm:hidden">Admin</span>
             </button>
             
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-2 sm:gap-4 lg:gap-6">
               <button
                 onClick={() => navigate('/')}
-                className="hover:text-gray-300 transition"
+                className="hover:text-gray-300 transition text-xs sm:text-sm lg:text-base"
               >
-                Ver Tienda
+                <span className="hidden sm:inline">Ver Tienda</span>
+                <span className="sm:hidden">🏪</span>
               </button>
               
-              <div className="flex items-center gap-3 border-l border-gray-600 pl-6 ml-4">
-                <div className="text-right">
+              <div className="flex items-center gap-2 lg:gap-3 border-l border-gray-600 pl-2 sm:pl-4 lg:pl-6 ml-2 sm:ml-4">
+                <div className="text-right hidden md:block">
                   <div className="text-sm font-semibold">{username}</div>
                   <div className="text-xs text-gray-400">Administrador</div>
                 </div>
                 <button
                   onClick={logout}
-                  className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded transition-colors"
+                  className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium px-2 sm:px-3 lg:px-4 py-2 rounded transition-colors"
                 >
-                  Cerrar Sesión
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
+                  <span className="sm:hidden">Salir</span>
                 </button>
               </div>
             </nav>
@@ -90,7 +93,8 @@ function Dashboard() {
           >
             <li>
               <NavLink
-                to='/admin/home'
+                to='/admin'
+                end
                 className={getLinkStyles}
               >Principal</NavLink>
             </li>

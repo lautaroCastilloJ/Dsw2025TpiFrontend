@@ -17,8 +17,13 @@ function ListOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Filtros
   const [status, setStatus] = useState(null);
-  const [customerIdFilter, setCustomerIdFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchType, setSearchType] = useState('search'); // 'search', 'customerId', 'customerName'
+  
+  // Paginación
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -29,12 +34,25 @@ function ListOrdersPage() {
       setLoading(true);
       setError(null);
       
-      const { data, error } = await getOrdersAdmin({
+      // Preparar parámetros según el tipo de búsqueda
+      const params = {
         status,
-        customerId: customerIdFilter || null,
         pageNumber,
         pageSize,
-      });
+      };
+
+      if (searchTerm.trim()) {
+        if (searchType === 'customerId') {
+          params.customerId = searchTerm.trim();
+        } else if (searchType === 'customerName') {
+          params.customerName = searchTerm.trim();
+        } else {
+          // search general (busca en OrderId, CustomerName, Notes)
+          params.search = searchTerm.trim();
+        }
+      }
+
+      const { data, error } = await getOrdersAdmin(params);
 
       if (error) {
         setError(error);
@@ -75,6 +93,13 @@ function ListOrdersPage() {
     fetchOrders();
   };
 
+  const handleClearFilters = () => {
+    setStatus(null);
+    setSearchTerm('');
+    setSearchType('search');
+    setPageNumber(1);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-AR', {
@@ -109,26 +134,42 @@ function ListOrdersPage() {
       <Card>
         <h1 className='text-3xl mb-4'>Órdenes</h1>
 
-        <div className='flex flex-col sm:flex-row gap-4 mb-6'>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Buscar"
-              value={customerIdFilter}
-              onChange={(e) => setCustomerIdFilter(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSearch();
-              }}
-              className="border rounded px-4 py-2 w-64"
-            />
-            <Button onClick={handleSearch}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </Button>
+        <div className='flex flex-col gap-4 mb-6'>
+          {/* Fila 1: Búsqueda */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <select
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+              className="border rounded px-4 py-2 bg-white"
+            >
+              <option value="search">Búsqueda General</option>
+              <option value="customerId">ID Cliente</option>
+              <option value="customerName">Nombre Cliente</option>
+            </select>
+
+            <div className="flex items-center gap-2 flex-1">
+              <input
+                type="text"
+                placeholder={
+                  searchType === 'customerId' ? 'Buscar por ID de cliente...' :
+                  searchType === 'customerName' ? 'Buscar por nombre de cliente...' :
+                  'Buscar por ID orden, cliente o notas...'
+                }
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                className="border rounded px-4 py-2 flex-1 min-w-0"
+              />
+              <Button onClick={handleSearch} className="whitespace-nowrap">
+                🔍 Buscar
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Fila 2: Filtros y acciones */}
+          <div className="flex flex-col sm:flex-row gap-4">
             <select 
               value={status || ''} 
               onChange={(e) => {
@@ -137,19 +178,38 @@ function ListOrdersPage() {
               }}
               className="border rounded px-4 py-2 bg-white"
             >
-              <option value="">Estado de Orden</option>
+              <option value="">Todos los estados</option>
               <option value="Pending">Pendiente</option>
               <option value="Processing">En Proceso</option>
               <option value="Shipped">Enviado</option>
               <option value="Delivered">Entregado</option>
               <option value="Cancelled">Cancelado</option>
             </select>
+
+            {(status || searchTerm) && (
+              <Button 
+                onClick={handleClearFilters}
+                className="bg-gray-500 hover:bg-gray-600"
+              >
+                🗑️ Limpiar Filtros
+              </Button>
+            )}
+
+            <div className="text-sm text-gray-600 flex items-center ml-auto">
+              {totalCount > 0 && (
+                <span>
+                  Mostrando {orders.length} de {totalCount} órdenes
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         {orders.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-600">No hay órdenes para mostrar</p>
+            <p className="text-gray-600">
+              {searchTerm || status ? 'No se encontraron órdenes con los filtros aplicados' : 'No hay órdenes para mostrar'}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -157,9 +217,9 @@ function ListOrdersPage() {
               <Card key={order.id} className="hover:shadow-lg transition-shadow">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h2 className="text-lg font-semibold">
-                        # - {order.customerName || order.customerFullName || 'Cliente Desconocido'}
+                        Orden #{order.id.substring(0, 8)}
                       </h2>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
@@ -171,31 +231,41 @@ function ListOrdersPage() {
                         {orderStatusLabels[order.status] || order.status}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm">
-                      Fecha: {formatDate(order.date)}
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      Total: ${order.totalAmount?.toFixed(2)}
-                    </p>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Envío: {order.shippingAddress}
-                    </p>
-                    {order.notes && (
-                      <p className="text-gray-600 text-sm mt-1 italic">
-                        Notas: {order.notes}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <p className="text-gray-600">
+                        <span className="font-medium">Cliente:</span> {order.customerName || order.customerFullName || 'Cliente Desconocido'}
                       </p>
-                    )}
-                    {order.items && order.items.length > 0 && (
-                      <div className="mt-2 text-sm text-gray-500">
-                        {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
-                      </div>
-                    )}
+                      <p className="text-gray-600">
+                        <span className="font-medium">Fecha:</span> {formatDate(order.date)}
+                      </p>
+                      <p className="text-gray-600">
+                        <span className="font-medium">Total:</span> ${order.totalAmount?.toFixed(2)}
+                      </p>
+                      {order.customerId && (
+                        <p className="text-gray-600">
+                          <span className="font-medium">ID Cliente:</span> {order.customerId.substring(0, 8)}...
+                        </p>
+                      )}
+                      <p className="text-gray-600 md:col-span-2">
+                        <span className="font-medium">Envío:</span> {order.shippingAddress}
+                      </p>
+                      {order.notes && (
+                        <p className="text-gray-600 md:col-span-2 italic">
+                          <span className="font-medium">Notas:</span> {order.notes}
+                        </p>
+                      )}
+                      {order.items && order.items.length > 0 && (
+                        <p className="text-gray-500 md:col-span-2">
+                          {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <Button 
-                    className="text-sm px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-800"
-                    onClick={() => navigate(`/order/${order.id}`)}
+                    className="text-sm px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-800 ml-4"
+                    onClick={() => navigate(`/admin/orders/${order.id}`)}
                   >
-                    Ver
+                    Ver Detalle
                   </Button>
                 </div>
               </Card>
@@ -281,6 +351,7 @@ function ListOrdersPage() {
             }}
             className='ml-3 px-3 py-2 border rounded bg-white'
           >
+            <option value="5">5 por página</option>
             <option value="10">10 por página</option>
             <option value="20">20 por página</option>
             <option value="50">50 por página</option>

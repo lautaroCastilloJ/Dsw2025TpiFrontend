@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyOrders } from '../services/listServices';
+import useAuth from '../../auth/hook/useAuth';
 import Card from '../../shared/components/Card';
 import Button from '../../shared/components/Button';
 
@@ -14,6 +15,7 @@ const orderStatusLabels = {
 
 function MyOrdersPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, role } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +24,15 @@ function MyOrdersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  // Redirigir si no está autenticado o si es administrador
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else if (role === 'Administrador') {
+      navigate('/admin/orders');
+    }
+  }, [isAuthenticated, role, navigate]);
 
   const fetchOrders = async () => {
     try {
@@ -79,27 +90,31 @@ function MyOrdersPage() {
 
   if (loading) {
     return (
-      <Card>
-        <div className="flex justify-center items-center min-h-[400px]">
-          <p className="text-xl text-gray-600">Cargando órdenes...</p>
-        </div>
-      </Card>
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <p className="text-xl text-gray-600">Cargando órdenes...</p>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card>
-        <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
-          <p className="text-xl text-red-600">{error}</p>
-          <Button onClick={fetchOrders}>Reintentar</Button>
-        </div>
-      </Card>
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <div className="flex flex-col justify-center items-center min-h-[400px] gap-4">
+            <p className="text-xl text-red-600">{error}</p>
+            <Button onClick={fetchOrders}>Reintentar</Button>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div>
+    <div className="container mx-auto px-4 py-8">
       <Card>
         <h1 className='text-3xl mb-4'>Mis Órdenes</h1>
 
@@ -257,6 +272,7 @@ function MyOrdersPage() {
             }}
             className='ml-3 px-3 py-2 border rounded bg-white'
           >
+            <option value="5">5 por página</option>
             <option value="10">10 por página</option>
             <option value="20">20 por página</option>
             <option value="50">50 por página</option>

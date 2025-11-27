@@ -136,8 +136,8 @@ function ListProductsPage() {
           </Button>
         </div>
 
-        <div className='flex flex-col sm:flex-row gap-4'>
-          <div className='flex items-center gap-3'>
+        <div className='flex flex-col sm:flex-row gap-4 mb-3'>
+          <div className='flex items-center gap-3 flex-1'>
             <input 
               value={searchTerm} 
               onChange={(evt) => setSearchTerm(evt.target.value)}
@@ -170,6 +170,13 @@ function ListProductsPage() {
             <option value={productStatus.ENABLED}>Habilitados</option>
             <option value={productStatus.DISABLED}>Inhabilitados</option>
           </select>
+          
+          {/* Contador de productos */}
+          {!loading && !error && (
+            <div className="flex items-center text-gray-600 text-sm font-medium whitespace-nowrap">
+              {totalCount} {totalCount === 1 ? 'producto' : 'productos'}
+            </div>
+          )}
         </div>
       </Card>
 
@@ -250,6 +257,7 @@ function ListProductsPage() {
             }}
             className='ml-3 px-3 py-2 border rounded'
           >
+            <option value="5">5 por página</option>
             <option value="10">10 por página</option>
             <option value="20">20 por página</option>
             <option value="50">50 por página</option>

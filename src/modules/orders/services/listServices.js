@@ -37,6 +37,8 @@ export const getMyOrders = async ({
 export const getOrdersAdmin = async ({ 
   status = null,
   customerId = null,
+  customerName = null,
+  search = null,
   pageNumber = 1, 
   pageSize = 10 
 } = {}) => {
@@ -52,6 +54,14 @@ export const getOrdersAdmin = async ({
 
     if (customerId) {
       params.customerId = customerId;
+    }
+
+    if (customerName) {
+      params.customerName = customerName;
+    }
+
+    if (search) {
+      params.search = search;
     }
 
     console.log('Fetching admin orders with params:', params);

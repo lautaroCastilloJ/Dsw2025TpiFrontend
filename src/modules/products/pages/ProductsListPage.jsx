@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductsPublic } from '../services/list';
 import { useCart } from '../../cart/context/CartContext';
+import useAuth from '../../auth/hook/useAuth';
 import Card from '../../shared/components/Card';
 import Button from '../../shared/components/Button';
 import Swal from 'sweetalert2';
@@ -9,6 +10,7 @@ import Swal from 'sweetalert2';
 function ProductsListPage() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { isAuthenticated, role } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -99,13 +101,23 @@ function ProductsListPage() {
                   </span>
                 </div>
                 
-                <Button 
-                  onClick={() => handleAddToCart(product)}
-                  className="w-full"
-                  disabled={product.stockQuantity === 0}
-                >
-                  {product.stockQuantity > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
-                </Button>
+                {/* Solo mostrar botón de agregar al carrito si no es administrador */}
+                {(!isAuthenticated || role !== 'Administrador') && (
+                  <Button 
+                    onClick={() => handleAddToCart(product)}
+                    className="w-full"
+                    disabled={product.stockQuantity === 0}
+                  >
+                    {product.stockQuantity > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
+                  </Button>
+                )}
+                
+                {/* Mostrar mensaje informativo para administradores */}
+                {isAuthenticated && role === 'Administrador' && (
+                  <div className="text-center py-2 text-gray-600 text-sm">
+                    Vista previa de la tienda
+                  </div>
+                )}
               </div>
             </div>
           </Card>

@@ -47,7 +47,7 @@ function LoginForm() {
         
         // Redirigir según el rol
         if (role === 'Administrador') {
-          navigate('/admin/home');
+          navigate('/admin');
         } else {
           navigate('/');
         }

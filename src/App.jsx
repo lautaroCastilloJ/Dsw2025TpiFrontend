@@ -6,7 +6,6 @@ import RegisterPage from './modules/auth/pages/RegisterPage';
 import Dashboard from './modules/templates/components/Dashboard';
 import ProtectedRoute from './modules/auth/components/ProtectedRoute';
 import ListOrdersPage from './modules/orders/pages/ListOrdersPage';
-import MyOrdersPage from './modules/orders/pages/MyOrdersPage';
 import OrderDetailPage from './modules/orders/pages/OrderDetailPage';
 import Home from './modules/home/pages/Home';
 import ListProductsPage from './modules/products/pages/ListProductsPage';
@@ -14,11 +13,11 @@ import CreateProductPage from './modules/products/pages/CreateProductPage';
 import EditProductPage from './modules/products/pages/EditProductPage';
 import ProductsListPage from './modules/products/pages/ProductsListPage';
 import CartPage from './modules/cart/pages/CartPage';
-import CheckoutPage from './modules/cart/pages/CheckoutPage';
+import MyOrdersPage from './modules/orders/pages/MyOrdersPage';
 import Header from './modules/shared/components/Header';
 import Footer from './modules/shared/components/Footer';
 
-// Layout para las páginas públicas
+// Layout para las páginas públicas (Cliente)
 function PublicLayout() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -33,79 +32,79 @@ function PublicLayout() {
 
 function App() {
   const router = createBrowserRouter([
+    // ========== RUTAS PÚBLICAS (CLIENTE) ==========
     {
       path: '/',
       element: <PublicLayout />,
       children: [
         {
+          // Página principal - Listado de productos público
           path: '/',
           element: <ProductsListPage />,
         },
         {
+          // Carrito - Accesible sin login, pero requiere login para checkout
           path: '/cart',
           element: <CartPage />,
         },
         {
-          path: '/checkout',
-          element: (
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          ),
+          // Mis órdenes - Solo para clientes autenticados
+          path: '/my-orders',
+          element: <MyOrdersPage />,
         },
         {
-          path: '/customer/orders',
-          element: (
-            <ProtectedRoute>
-              <MyOrdersPage />
-            </ProtectedRoute>
-          ),
-        },
-        {
+          // Detalle de orden para cliente
           path: '/order/:orderId',
-          element: (
-            <ProtectedRoute>
-              <OrderDetailPage />
-            </ProtectedRoute>
-          ),
+          element: <OrderDetailPage />,
         },
       ],
     },
+
+    // ========== RUTAS DE AUTENTICACIÓN ==========
     {
       path: '/login',
       element: <LoginPage />,
     },
     {
-      path: '/register',
+      path: '/signup',
       element: <RegisterPage />,
     },
+
+    // ========== RUTAS PROTEGIDAS DE ADMINISTRADOR ==========
     {
       path: '/admin',
       element: (
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={['Administrador']}>
           <Dashboard />
         </ProtectedRoute>
       ),
       children: [
         {
-          path: '/admin/home',
+          // Dashboard principal con estadísticas
+          index: true,
           element: <Home />,
         },
         {
-          path: '/admin/products',
+          // Gestión de productos
+          path: 'products',
           element: <ListProductsPage />,
         },
         {
-          path: '/admin/products/create',
+          path: 'products/create',
           element: <CreateProductPage />,
         },
         {
-          path: '/admin/products/edit/:productId',
+          path: 'products/edit/:productId',
           element: <EditProductPage />,
         },
         {
-          path: '/admin/orders',
+          // Gestión de órdenes
+          path: 'orders',
           element: <ListOrdersPage />,
+        },
+        {
+          path: 'orders/:orderId',
+          element: <OrderDetailPage />,
         },
       ],
     },

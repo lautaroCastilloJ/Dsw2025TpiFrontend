@@ -19,6 +19,7 @@ function RegisterForm() {
       email: '',
       displayName: '',
       phoneNumber: '',
+      role: '',
     },
   });
 
@@ -33,7 +34,7 @@ function RegisterForm() {
         email: formData.email,
         displayName: formData.displayName,
         phoneNumber: formData.phoneNumber,
-        role: 'Cliente',
+        role: formData.role,
       });
 
       if (error) {
@@ -146,6 +147,25 @@ function RegisterForm() {
         })}
         error={errors.confirmPassword?.message}
       />
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Rol
+        </label>
+        <select
+          {...registerField('role', {
+            required: 'Rol es obligatorio',
+          })}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Seleccionar rol...</option>
+          <option value="Cliente">Cliente</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+        {errors.role && (
+          <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
+        )}
+      </div>
 
       <Button type='submit' className="mt-4">Registrarse</Button>
       

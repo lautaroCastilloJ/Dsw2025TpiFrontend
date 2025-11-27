@@ -85,10 +85,16 @@ function EditProductPage() {
       const { data, error } = await updateProduct(productId, productData);
 
       if (error) {
+        // Mensaje más específico si el error contiene información sobre SKU o código duplicado
+        const errorTitle = error.toLowerCase().includes('sku') || error.toLowerCase().includes('internalcode') || error.toLowerCase().includes('ya existe')
+          ? 'SKU o Código Interno duplicado'
+          : 'Error al actualizar producto';
+        
         Swal.fire({
           icon: 'error',
-          title: 'Error al actualizar producto',
+          title: errorTitle,
           text: error,
+          confirmButtonColor: '#3085d6',
         });
         return;
       }
@@ -175,22 +181,52 @@ function EditProductPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* SKU */}
-            <Input
-              label="SKU"
-              {...register('sku', {
-                required: 'El SKU es requerido',
-              })}
-              error={errors.sku?.message}
-            />
+            <div>
+              <Input
+                label="SKU"
+                {...register('sku', {
+                  required: 'El SKU es requerido',
+                  minLength: {
+                    value: 1,
+                    message: 'El SKU debe tener al menos 1 carácter',
+                  },
+                  validate: (value) => {
+                    if (!value.trim()) {
+                      return 'El SKU no puede estar vacío';
+                    }
+                    return true;
+                  },
+                })}
+                error={errors.sku?.message}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                ⚠️ El SKU debe ser único en el sistema
+              </p>
+            </div>
 
             {/* Código Interno */}
-            <Input
-              label="Código Interno"
-              {...register('internalCode', {
-                required: 'El código interno es requerido',
-              })}
-              error={errors.internalCode?.message}
-            />
+            <div>
+              <Input
+                label="Código Interno"
+                {...register('internalCode', {
+                  required: 'El código interno es requerido',
+                  minLength: {
+                    value: 1,
+                    message: 'El código interno debe tener al menos 1 carácter',
+                  },
+                  validate: (value) => {
+                    if (!value.trim()) {
+                      return 'El código interno no puede estar vacío';
+                    }
+                    return true;
+                  },
+                })}
+                error={errors.internalCode?.message}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                ⚠️ El código interno debe ser único en el sistema
+              </p>
+            </div>
           </div>
 
           {/* Nombre */}
@@ -198,6 +234,16 @@ function EditProductPage() {
             label="Nombre del Producto"
             {...register('name', {
               required: 'El nombre es requerido',
+              minLength: {
+                value: 3,
+                message: 'El nombre debe tener al menos 3 caracteres',
+              },
+              validate: (value) => {
+                if (!value.trim()) {
+                  return 'El nombre no puede estar vacío';
+                }
+                return true;
+              },
             })}
             error={errors.name?.message}
           />
@@ -210,6 +256,16 @@ function EditProductPage() {
             <textarea
               {...register('description', {
                 required: 'La descripción es requerida',
+                minLength: {
+                  value: 10,
+                  message: 'La descripción debe tener al menos 10 caracteres',
+                },
+                validate: (value) => {
+                  if (!value.trim()) {
+                    return 'La descripción no puede estar vacía';
+                  }
+                  return true;
+                },
               })}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.description ? 'border-red-500' : 'border-gray-300'
@@ -230,6 +286,16 @@ function EditProductPage() {
               {...register('currentUnitPrice', {
                 required: 'El precio es requerido',
                 valueAsNumber: true,
+                min: {
+                  value: 0.01,
+                  message: 'El precio debe ser mayor a 0',
+                },
+                validate: (value) => {
+                  if (isNaN(value) || value <= 0) {
+                    return 'El precio debe ser un número mayor a 0';
+                  }
+                  return true;
+                },
               })}
               error={errors.currentUnitPrice?.message}
             />
@@ -241,6 +307,19 @@ function EditProductPage() {
               {...register('stockQuantity', {
                 required: 'El stock es requerido',
                 valueAsNumber: true,
+                min: {
+                  value: 0,
+                  message: 'El stock no puede ser negativo',
+                },
+                validate: (value) => {
+                  if (isNaN(value) || value < 0) {
+                    return 'El stock debe ser un número mayor o igual a 0';
+                  }
+                  if (!Number.isInteger(value)) {
+                    return 'El stock debe ser un número entero';
+                  }
+                  return true;
+                },
               })}
               error={errors.stockQuantity?.message}
             />

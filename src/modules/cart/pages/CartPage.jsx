@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import useAuth from '../../auth/hook/useAuth';
+import { createOrder } from '../../orders/services/createService';
 import Card from '../../shared/components/Card';
 import Button from '../../shared/components/Button';
+import LoginModal from '../../auth/components/LoginModal';
+import RegisterModal from '../../auth/components/RegisterModal';
 import Swal from 'sweetalert2';
 
 function CartPage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { cartItems, updateQuantity, removeFromCart, clearCart, getCartTotal } = useCart();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [processingOrder, setProcessingOrder] = useState(false);
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -59,8 +68,147 @@ function CartPage() {
     });
   };
 
-  const handleCheckout = () => {
-    navigate('/checkout');
+  const handleCheckout = async () => {
+    if (!isAuthenticated) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Iniciar Sesión Requerido',
+        text: 'Debes iniciar sesión para realizar una compra',
+        showCancelButton: true,
+        confirmButtonText: 'Iniciar Sesión',
+        cancelButtonText: 'Crear Cuenta',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setShowLoginModal(true);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setShowRegisterModal(true);
+        }
+      });
+      return;
+    }
+
+    // Si está autenticado, solicitar direcciones y crear la orden
+    const { value: formValues } = await Swal.fire({
+      title: 'Datos de Envío',
+      html:
+        '<input id="swal-shipping-street" class="swal2-input" placeholder="Calle y Número">' +
+        '<input id="swal-shipping-city" class="swal2-input" placeholder="Ciudad">' +
+        '<input id="swal-shipping-state" class="swal2-input" placeholder="Provincia">' +
+        '<input id="swal-shipping-zip" class="swal2-input" placeholder="Código Postal">' +
+        '<br><label class="swal2-checkbox"><input type="checkbox" id="swal-same-address"> Usar misma dirección para facturación</label>',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        return {
+          shippingStreet: document.getElementById('swal-shipping-street').value,
+          shippingCity: document.getElementById('swal-shipping-city').value,
+          shippingState: document.getElementById('swal-shipping-state').value,
+          shippingZip: document.getElementById('swal-shipping-zip').value,
+          sameAddress: document.getElementById('swal-same-address').checked,
+        };
+      },
+    });
+
+    if (!formValues) return;
+
+    const { shippingStreet, shippingCity, shippingState, shippingZip, sameAddress } = formValues;
+
+    if (!shippingStreet || !shippingCity || !shippingState || !shippingZip) {
+      Swal.fire('Error', 'Todos los campos de dirección son requeridos', 'error');
+      return;
+    }
+
+    let billingAddress = '';
+
+    if (!sameAddress) {
+      const { value: billingValues } = await Swal.fire({
+        title: 'Dirección de Facturación',
+        html:
+          '<input id="swal-billing-street" class="swal2-input" placeholder="Calle y Número">' +
+          '<input id="swal-billing-city" class="swal2-input" placeholder="Ciudad">' +
+          '<input id="swal-billing-state" class="swal2-input" placeholder="Provincia">' +
+          '<input id="swal-billing-zip" class="swal2-input" placeholder="Código Postal">',
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Finalizar Compra',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          return {
+            billingStreet: document.getElementById('swal-billing-street').value,
+            billingCity: document.getElementById('swal-billing-city').value,
+            billingState: document.getElementById('swal-billing-state').value,
+            billingZip: document.getElementById('swal-billing-zip').value,
+          };
+        },
+      });
+
+      if (!billingValues) return;
+
+      const { billingStreet, billingCity, billingState, billingZip } = billingValues;
+
+      if (!billingStreet || !billingCity || !billingState || !billingZip) {
+        Swal.fire('Error', 'Todos los campos de dirección son requeridos', 'error');
+        return;
+      }
+
+      billingAddress = `${billingStreet}, ${billingCity}, ${billingState}, ${billingZip}`.trim();
+    }
+
+    const shippingAddress = `${shippingStreet}, ${shippingCity}, ${shippingState}, ${shippingZip}`.trim();
+
+    if (sameAddress) {
+      billingAddress = shippingAddress;
+    }
+
+    // Crear la orden
+    setProcessingOrder(true);
+    try {
+      const orderData = {
+        shippingAddress,
+        billingAddress,
+        notes: '',
+        orderItems: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          unitPrice: item.currentUnitPrice,
+        })),
+      };
+
+      const { data, error } = await createOrder(orderData);
+
+      if (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al crear la orden',
+          text: error,
+        });
+        return;
+      }
+
+      // Limpiar carrito y redirigir
+      clearCart();
+
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Compra Exitosa!',
+        text: 'Tu orden ha sido creada correctamente',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      navigate('/');
+    } catch (error) {
+      console.error('Error creating order:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al procesar tu compra',
+      });
+    } finally {
+      setProcessingOrder(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -179,9 +327,10 @@ function CartPage() {
 
             <Button 
               onClick={handleCheckout}
-              className="w-full bg-green-600 hover:bg-green-700 text-lg py-3"
+              disabled={processingOrder}
+              className="w-full !bg-green-600 hover:!bg-green-700 !text-white text-lg py-3"
             >
-              Proceder al Pago
+              {processingOrder ? 'Procesando...' : 'Finalizar Compra'}
             </Button>
 
             <Button 
@@ -193,6 +342,25 @@ function CartPage() {
           </Card>
         </div>
       </div>
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        requireClientRole={true}
+        onSwitchToRegister={() => {
+          setShowLoginModal(false);
+          setShowRegisterModal(true);
+        }}
+      />
+
+      <RegisterModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onSwitchToLogin={() => {
+          setShowRegisterModal(false);
+          setShowLoginModal(true);
+        }}
+      />
     </div>
   );
 }
