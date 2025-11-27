@@ -29,11 +29,13 @@ export const getProductsAdmin = async ({
 
 // Para usuarios públicos: obtiene solo productos activos
 export const getProductsPublic = async ({ 
+  search = null,
   pageNumber = 1, 
   pageSize = 10 
 } = {}) => {
   try {
     const params = {
+      ...(search && { search: search }),
       pageNumber,
       pageSize,
     };

@@ -111,6 +111,7 @@ function ListProductsPage() {
 
   return (
     <div>
+      {/* Título y botón de crear */}
       <Card>
         <div className='flex justify-between items-center mb-3'>
           <h1 className='text-3xl'>Productos</h1>
@@ -136,7 +137,21 @@ function ListProductsPage() {
           </Button>
         </div>
 
+        {/* Barra de búsqueda y filtros */}
         <div className='flex flex-col sm:flex-row gap-4 mb-3'>
+          <select 
+            onChange={evt => {
+              const value = evt.target.value;
+              setStatus(value === 'null' ? null : value);
+              setPageNumber(1);
+            }} 
+            className='text-[1.3rem]'
+          >
+            <option value="null">Todos los estados</option>
+            <option value={productStatus.ENABLED}>Habilitados</option>
+            <option value={productStatus.DISABLED}>Inhabilitados</option>
+          </select>
+
           <div className='flex items-center gap-3 flex-1'>
             <input 
               value={searchTerm} 
@@ -145,7 +160,7 @@ function ListProductsPage() {
                 if (evt.key === 'Enter') handleSearch();
               }}
               type="text" 
-              placeholder='Buscar por SKU o nombre' 
+              placeholder='Buscar por SKU, nombre o descripción...' 
               className='text-[1.3rem] w-full' 
             />
             <Button className='h-11 w-11' onClick={handleSearch}>
@@ -158,23 +173,11 @@ function ListProductsPage() {
               </svg>
             </Button>
           </div>
-          <select 
-            onChange={evt => {
-              const value = evt.target.value;
-              setStatus(value === 'null' ? null : value);  // ← Manejo de null
-              setPageNumber(1);  // ← Reset a página 1 al cambiar filtro
-            }} 
-            className='text-[1.3rem]'
-          >
-            <option value="null">Todos</option>
-            <option value={productStatus.ENABLED}>Habilitados</option>
-            <option value={productStatus.DISABLED}>Inhabilitados</option>
-          </select>
           
           {/* Contador de productos */}
           {!loading && !error && (
             <div className="flex items-center text-gray-600 text-sm font-medium whitespace-nowrap">
-              {totalCount} {totalCount === 1 ? 'producto' : 'productos'}
+              Mostrando {products.length} de {totalCount} productos
             </div>
           )}
         </div>

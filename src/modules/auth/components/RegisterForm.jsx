@@ -47,6 +47,8 @@ function RegisterForm() {
         return;
       }
 
+      // console.log('Usuario registrado exitosamente:', data);
+
       Swal.fire({
         icon: 'success',
         title: '¡Registro exitoso!',

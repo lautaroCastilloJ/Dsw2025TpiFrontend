@@ -7,7 +7,7 @@ import Dashboard from './modules/templates/components/Dashboard';
 import ProtectedRoute from './modules/auth/components/ProtectedRoute';
 import ListOrdersPage from './modules/orders/pages/ListOrdersPage';
 import OrderDetailPage from './modules/orders/pages/OrderDetailPage';
-import Home from './modules/home/pages/Home';
+import HomeAdmin from './modules/home/pages/HomeAdmin';
 import ListProductsPage from './modules/products/pages/ListProductsPage';
 import CreateProductPage from './modules/products/pages/CreateProductPage';
 import EditProductPage from './modules/products/pages/EditProductPage';
@@ -82,7 +82,7 @@ function App() {
         {
           // Dashboard principal con estadísticas
           index: true,
-          element: <Home />,
+          element: <HomeAdmin />,
         },
         {
           // Gestión de productos
