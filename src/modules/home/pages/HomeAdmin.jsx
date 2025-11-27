@@ -3,7 +3,7 @@ import Card from '../../shared/components/Card';
 import { getProductsAdmin } from '../../products/services/list';
 import { getOrdersAdmin } from '../../orders/services/listServices';
 
-function Home() {
+function HomeAdmin() {
   const [stats, setStats] = useState({
     totalProducts: 0,
     activeProducts: 0,
@@ -191,4 +191,4 @@ function Home() {
   );
 };
 
-export default Home;
+export default HomeAdmin;

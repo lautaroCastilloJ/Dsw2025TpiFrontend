@@ -163,7 +163,7 @@ function ListOrdersPage() {
                 className="border rounded px-4 py-2 flex-1 min-w-0"
               />
               <Button onClick={handleSearch} className="whitespace-nowrap">
-                🔍 Buscar
+                Buscar
               </Button>
             </div>
           </div>

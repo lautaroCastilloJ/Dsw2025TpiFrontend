@@ -14,8 +14,11 @@ function ProductsListPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
 
@@ -25,8 +28,9 @@ function ProductsListPage() {
       setError(null);
       
       const { data, error } = await getProductsPublic({
+        search: searchTerm || null,
         pageNumber,
-        pageSize: 12,
+        pageSize,
       });
 
       if (error) {
@@ -36,6 +40,7 @@ function ProductsListPage() {
 
       setProducts(data.items);
       setTotalPages(data.totalPages);
+      setTotalCount(data.totalCount);
       setHasNext(data.hasNext);
       setHasPrevious(data.hasPrevious);
     } catch (err) {
@@ -48,7 +53,12 @@ function ProductsListPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, [pageNumber]);
+  }, [pageNumber, pageSize]);
+
+  const handleSearch = async () => {
+    setPageNumber(1);
+    await fetchProducts();
+  };
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
@@ -81,7 +91,44 @@ function ProductsListPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Nuestros Productos</h1>
+      
+
+      {/* Barra de búsqueda y filtros */}
+      <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6'>
+        <div className='flex flex-col lg:flex-row gap-4'>
+          {/* Barra de búsqueda */}
+          <div className='flex-1 flex gap-2'>
+            <input 
+              value={searchTerm} 
+              onChange={(evt) => setSearchTerm(evt.target.value)}
+              onKeyDown={(evt) => {
+                if (evt.key === 'Enter') handleSearch();
+              }}
+              type="text" 
+              placeholder='Buscar productos por nombre o descripción...' 
+              className='flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent' 
+            />
+            <Button 
+              className='px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center gap-2'
+              onClick={handleSearch}
+            >
+              <svg className='w-5 h-5' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+              </svg>
+              <span className='hidden sm:inline'>Buscar</span>
+            </Button>
+          </div>
+        </div>
+        
+        {/* Contador de resultados */}
+        <div className='mt-3 pt-3 border-t border-gray-200'>
+          {!loading && !error && (
+            <p className="text-gray-600 text-sm">
+              Mostrando <span className='font-semibold'>{products.length}</span> de <span className='font-semibold'>{totalCount}</span> productos
+            </p>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
@@ -131,27 +178,42 @@ function ProductsListPage() {
       )}
 
       {/* Paginación */}
-      {totalPages > 1 && (
+      {!loading && products.length > 0 && (
         <div className="flex justify-center items-center gap-4 mt-8">
-          <Button
-            onClick={() => setPageNumber(pageNumber - 1)}
+          <button
             disabled={!hasPrevious}
-            className="px-4 py-2"
+            onClick={() => setPageNumber(pageNumber - 1)}
+            className='px-4 py-2 bg-gray-200 rounded disabled:bg-gray-100 disabled:cursor-not-allowed hover:bg-gray-300'
           >
-            Anterior
-          </Button>
+            Atrás
+          </button>
           
-          <span className="text-gray-700">
-            Página {pageNumber} de {totalPages}
+          <span className='text-lg'>
+            Página {pageNumber} de {totalPages} ({totalCount} productos)
           </span>
           
-          <Button
-            onClick={() => setPageNumber(pageNumber + 1)}
+          <button
             disabled={!hasNext}
-            className="px-4 py-2"
+            onClick={() => setPageNumber(pageNumber + 1)}
+            className='px-4 py-2 bg-gray-200 rounded disabled:bg-gray-100 disabled:cursor-not-allowed hover:bg-gray-300'
           >
             Siguiente
-          </Button>
+          </button>
+
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPageNumber(1);
+            }}
+            className='px-3 py-2 border rounded bg-white'
+          >
+            <option value={5}>5 por página</option>
+            <option value={10}>10 por página</option>
+            <option value={12}>12 por página</option>
+            <option value={20}>20 por página</option>
+            <option value={50}>50 por página</option>
+          </select>
         </div>
       )}
     </div>

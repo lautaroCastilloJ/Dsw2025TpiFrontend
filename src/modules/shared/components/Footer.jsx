@@ -7,7 +7,7 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <p className="text-lg font-semibold">TPI Store</p>
-            <p className="text-sm text-gray-400">Tu tienda de confianza</p>
+            
           </div>
           
           <div className="text-center md:text-right">
