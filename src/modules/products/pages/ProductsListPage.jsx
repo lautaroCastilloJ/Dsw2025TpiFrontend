@@ -91,7 +91,7 @@ function ProductsListPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Nuestros Productos</h1>
+      
 
       {/* Barra de búsqueda y filtros */}
       <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6'>

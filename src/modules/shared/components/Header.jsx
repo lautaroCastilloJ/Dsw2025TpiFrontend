@@ -39,10 +39,6 @@ function Header() {
           
           {/* Menú desktop */}
           <nav className="hidden md:flex items-center gap-4 lg:gap-6">
-            <Link to="/" className="hover:text-gray-300 transition text-sm lg:text-base">
-              Inicio
-            </Link>
-            
             {/* Solo mostrar carrito si no está autenticado o si es cliente */}
             {(!isAuthenticated || role === 'Cliente') && (
               <Link to="/cart" className="hover:text-gray-300 transition text-sm lg:text-base">
@@ -100,14 +96,6 @@ function Header() {
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-gray-700 pt-4">
             <div className="flex flex-col gap-3">
-              <Link 
-                to="/" 
-                className="hover:text-gray-300 transition py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Inicio
-              </Link>
-              
               {(!isAuthenticated || role === 'Cliente') && (
                 <Link 
                   to="/cart" 
