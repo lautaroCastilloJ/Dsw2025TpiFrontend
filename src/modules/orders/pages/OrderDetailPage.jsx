@@ -112,13 +112,18 @@ function OrderDetailPage() {
       text: `Estado actual: ${orderStatusLabels[order.status]}`,
       input: 'select',
       inputOptions: statusOptions,
-      inputValue: order.status, // Pre-selecciona el estado actual
+      inputValue: order.status,
       inputPlaceholder: 'Selecciona un nuevo estado',
       showCancelButton: true,
       confirmButtonText: 'Actualizar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#6b7280',
+      heightAuto: false,
+      customClass: {
+        popup: 'swal-tall-popup',
+        input: 'swal-large-input'
+      },
       inputValidator: (value) => {
         if (!value || value === order.status) {
           return 'Debes seleccionar un estado diferente al actual';
@@ -221,26 +226,26 @@ function OrderDetailPage() {
           <Card>
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">Orden #{order.id.substring(0, 8)}</h2>
+                <h2 className="text-2xl font-bold mb-2">Orden #{order.id}</h2>
                 <p className="text-gray-600">Fecha: {formatDate(order.date)}</p>
               </div>
-              <div className="flex flex-col items-end gap-3">
-                <span className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                  order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                  order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                  order.status === 'Processing' ? 'bg-purple-100 text-purple-800' :
-                  'bg-yellow-100 text-yellow-800'
+              <div className="flex flex-col items-end gap-2">
+                <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  order.status === 'Delivered' ? 'bg-green-500 text-white' :
+                  order.status === 'Cancelled' ? 'bg-red-500 text-white' :
+                  order.status === 'Shipped' ? 'bg-blue-500 text-white' :
+                  order.status === 'Processing' ? 'bg-purple-500 text-white' :
+                  'bg-yellow-500 text-white'
                 }`}>
                   {orderStatusLabels[order.status] || order.status}
                 </span>
                 
-                {/* Botón de actualizar estado solo para administradores y si no está en estado final */}
-                {role === 'Administrador' && !['Delivered', 'Cancelled'].includes(order.status) && (
+                {/* Botón de actualizar estado si no está en estado final y el usuario es administrador */}
+                {role === 'Administrador' && !['Shipped', 'Delivered', 'Cancelled'].includes(order.status) && (
                   <Button
                     onClick={handleUpdateStatus}
                     disabled={updatingStatus}
-                    className="text-sm bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                    className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg whitespace-nowrap"
                   >
                     {updatingStatus ? 'Actualizando...' : 'Actualizar Estado'}
                   </Button>

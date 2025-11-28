@@ -82,3 +82,20 @@ export const getOrdersAdmin = async ({
 
 // Mantener retrocompatibilidad
 export const listOrders = getOrdersAdmin;
+
+// Actualizar estado de una orden
+export const updateOrderStatus = async (orderId, newStatus) => {
+  try {
+    const response = await instance.patch(`/api/orders/${orderId}/status`, {
+      newStatus
+    });
+
+    return { data: response.data, error: null };
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return { 
+      data: null, 
+      error: handleApiError(error)
+    };
+  }
+};

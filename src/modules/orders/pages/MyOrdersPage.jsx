@@ -115,168 +115,135 @@ function MyOrdersPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <h1 className='text-3xl mb-4'>Mis Órdenes</h1>
+      <div className="mb-8">
+        <h1 className='text-4xl font-light text-gray-900 mb-2'>Mis Órdenes</h1>
+        <p className="text-gray-600">Gestiona y revisa tus pedidos</p>
+      </div>
 
-        <div className='flex flex-col sm:flex-row gap-4 mb-6'>
-          <div className="flex items-center gap-2">
-            <select 
-              value={status || ''} 
-              onChange={(e) => {
-                setStatus(e.target.value || null);
-                setPageNumber(1);
-              }}
-              className="border rounded px-4 py-2 bg-white"
-            >
-              <option value="">Estado de Orden</option>
-              <option value="Pending">Pendiente</option>
-              <option value="Processing">En Proceso</option>
-              <option value="Shipped">Enviado</option>
-              <option value="Delivered">Entregado</option>
-              <option value="Cancelled">Cancelado</option>
-            </select>
-          </div>
+      <div className='flex flex-col sm:flex-row gap-4 mb-6'>
+        <select 
+          value={status || ''} 
+          onChange={(e) => {
+            setStatus(e.target.value || null);
+            setPageNumber(1);
+          }}
+          className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+        >
+          <option value="">Todos los estados</option>
+          <option value="Pending">Pendiente</option>
+          <option value="Processing">En Proceso</option>
+          <option value="Shipped">Enviado</option>
+          <option value="Delivered">Entregado</option>
+          <option value="Cancelled">Cancelado</option>
+        </select>
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-200">
+          <p className="text-gray-600 text-lg">No tienes órdenes</p>
         </div>
-
-        {orders.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">No tienes órdenes aún</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {orders.map((order) => (
-              <Card key={order.id} className="hover:shadow-lg transition-shadow">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h2 className="text-lg font-semibold">
-                        Orden #{order.id.substring(0, 8)}
-                      </h2>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                        order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'Processing' ? 'bg-purple-100 text-purple-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {orderStatusLabels[order.status] || order.status}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 text-sm">
-                      Fecha: {formatDate(order.date)}
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow p-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Orden #{order.id}
+                    </h2>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      order.status === 'Delivered' ? 'bg-green-500 text-white' :
+                      order.status === 'Cancelled' ? 'bg-red-500 text-white' :
+                      order.status === 'Shipped' ? 'bg-blue-500 text-white' :
+                      order.status === 'Processing' ? 'bg-purple-500 text-white' :
+                      'bg-yellow-500 text-white'
+                    }`}>
+                      {orderStatusLabels[order.status] || order.status}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <p>
+                      <span className="font-medium text-gray-700">Fecha:</span> {formatDate(order.date)}
                     </p>
-                    <p className="text-gray-600 text-sm">
-                      Total: ${order.totalAmount?.toFixed(2)}
+                    <p>
+                      <span className="font-medium text-gray-700">Total:</span> <span className="text-lg font-bold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
                     </p>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Envío: {order.shippingAddress}
-                    </p>
+                    {order.shippingAddress && (
+                      <p>
+                        <span className="font-medium text-gray-700">Dirección de envío:</span> {order.shippingAddress}
+                      </p>
+                    )}
                     {order.notes && (
-                      <p className="text-gray-600 text-sm mt-1 italic">
-                        Notas: {order.notes}
+                      <p className="mt-2 italic text-gray-500">
+                        <span className="font-medium text-gray-700">Notas:</span> {order.notes}
                       </p>
                     )}
                     {order.items && order.items.length > 0 && (
-                      <div className="mt-2 text-sm text-gray-500">
+                      <p className="text-gray-500 mt-2">
                         {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
-                      </div>
+                      </p>
                     )}
                   </div>
-                  <Button 
-                    className="text-sm px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-800"
-                    onClick={() => navigate(`/order/${order.id}`)}
-                  >
-                    Ver
-                  </Button>
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </Card>
+                
+                <Button 
+                  className="px-6 py-2 rounded-lg font-medium whitespace-nowrap"
+                  onClick={() => navigate(`/order/${order.id}`)}
+                >
+                  Ver Detalles
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {!loading && orders.length > 0 && (
-        <div className='flex flex-col sm:flex-row justify-center items-center gap-3 mt-4'>
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-4'>
           <button
             disabled={pageNumber === 1}
             onClick={() => setPageNumber(pageNumber - 1)}
-            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors'
+            className='px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium'
           >
-            ← Previous
+            ← Anterior
           </button>
           
-          <div className="flex items-center gap-2">
-            {pageNumber > 2 && (
-              <>
-                <button
-                  onClick={() => setPageNumber(1)}
-                  className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
-                >
-                  1
-                </button>
-                {pageNumber > 3 && <span className="px-2">...</span>}
-              </>
-            )}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-gray-700">
+              <span className="font-medium">Página {pageNumber} de {totalPages}</span>
+              <span className="text-gray-500">({totalCount} órdenes)</span>
+            </div>
             
-            {pageNumber > 1 && (
-              <button
-                onClick={() => setPageNumber(pageNumber - 1)}
-                className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
+            <div className="flex items-center gap-2">
+              <label htmlFor="pageSize" className="text-sm text-gray-600 font-medium">
+                Por página:
+              </label>
+              <select
+                id="pageSize"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPageNumber(1);
+                }}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
-                {pageNumber - 1}
-              </button>
-            )}
-            
-            <button
-              className='px-3 py-2 bg-purple-600 text-white rounded'
-            >
-              {pageNumber}
-            </button>
-            
-            {pageNumber < totalPages && (
-              <button
-                onClick={() => setPageNumber(pageNumber + 1)}
-                className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
-              >
-                {pageNumber + 1}
-              </button>
-            )}
-            
-            {pageNumber < totalPages - 1 && (
-              <>
-                {pageNumber < totalPages - 2 && <span className="px-2">3</span>}
-                {pageNumber < totalPages - 2 && <span className="px-2">...</span>}
-                <button
-                  onClick={() => setPageNumber(totalPages)}
-                  className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
           
           <button
             disabled={pageNumber === totalPages}
             onClick={() => setPageNumber(pageNumber + 1)}
-            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors'
+            className='px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium'
           >
-            Next →
+            Siguiente →
           </button>
-
-          <select
-            value={pageSize}
-            onChange={evt => {
-              setPageNumber(1);
-              setPageSize(Number(evt.target.value));
-            }}
-            className='ml-3 px-3 py-2 border rounded bg-white'
-          >
-            <option value="5">5 por página</option>
-            <option value="10">10 por página</option>
-            <option value="20">20 por página</option>
-            <option value="50">50 por página</option>
-          </select>
         </div>
       )}
     </div>

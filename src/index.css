@@ -2,7 +2,7 @@
 
 @layer base {
   body {
-    @apply m-0 text-[2rem] h-[100dvh] sm:text-base bg-gray-100;
+    @apply m-0 text-base h-[100dvh] bg-gray-100;
   }
   #root {
     @apply h-[100dvh];
@@ -17,4 +17,21 @@
     @apply text-gray-500;
     color: #999999 !important;
   }
+}
+
+/* SweetAlert z-index above modals */
+.swal2-container {
+  z-index: 10000 !important;
+}
+
+/* SweetAlert custom styles for taller popup */
+.swal-tall-popup {
+  padding: 3rem 2rem !important;
+  min-height: 450px !important;
+}
+
+.swal-large-input {
+  font-size: 1.125rem !important;
+  padding: 1rem !important;
+  margin: 1.5rem 0 !important;
 }

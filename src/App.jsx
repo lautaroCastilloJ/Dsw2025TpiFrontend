@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from './modules/auth/context/AuthProvider';
 import { CartProvider } from './modules/cart/context/CartContext';
@@ -19,11 +20,13 @@ import Footer from './modules/shared/components/Footer';
 
 // Layout para las páginas públicas (Cliente)
 function PublicLayout() {
+  const [headerSearch, setHeaderSearch] = useState('');
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header onSearch={setHeaderSearch} searchTerm={headerSearch} />
       <main className="flex-grow">
-        <Outlet />
+        <Outlet context={{ headerSearch }} />
       </main>
       <Footer />
     </div>
