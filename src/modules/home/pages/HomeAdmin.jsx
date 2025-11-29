@@ -109,80 +109,92 @@ function HomeAdmin() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+    <div className="space-y-8">
+      <div className="border-b-2 border-gray-200 pb-4">
+        <h1 className="text-4xl font-bold text-gray-800">Panel de Control</h1>
+        <p className="text-gray-600 mt-2 font-medium">Resumen general del sistema</p>
+      </div>
       
-      {/* Estadísticas principales - Órdenes a la izquierda, Productos a la derecha */}
+      {/* Estadísticas principales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+        <Card className="bg-gradient-to-br from-slate-700 to-slate-800 text-white border-none shadow-lg">
           <div className="flex flex-col">
-            <h3 className="text-2xl font-semibold mb-3">Total Órdenes</h3>
-            <p className="text-5xl font-bold mb-4">{stats.totalOrders}</p>
-            <p className="text-sm opacity-90">Órdenes realizadas en total</p>
+            <h3 className="text-lg font-semibold mb-2 uppercase tracking-wide opacity-90">Total Órdenes</h3>
+            <p className="text-6xl font-bold mb-3">{stats.totalOrders}</p>
+            <p className="text-sm opacity-80 font-medium">Órdenes gestionadas en el sistema</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <Card className="bg-gradient-to-br from-blue-900 to-blue-950 text-white border-none shadow-lg">
           <div className="flex flex-col">
-            <h3 className="text-2xl font-semibold mb-3">Total Productos</h3>
-            <p className="text-5xl font-bold mb-4">{stats.totalProducts}</p>
-            <p className="text-sm opacity-90">Productos registrados en el sistema</p>
+            <h3 className="text-lg font-semibold mb-2 uppercase tracking-wide opacity-90">Total Productos</h3>
+            <p className="text-6xl font-bold mb-3">{stats.totalProducts}</p>
+            <p className="text-sm opacity-80 font-medium">Productos en el catálogo</p>
           </div>
         </Card>
       </div>
 
-      {/* Desglose de órdenes por estado */}
+      {/* Desglose de órdenes y productos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Estado de Órdenes</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-yellow-50 rounded">
-              <span className="font-medium text-gray-700">⏳ Pendientes</span>
-              <span className="text-xl font-bold text-yellow-600">{stats.pendingOrders}</span>
+        <Card className="border-2 border-gray-200 shadow-sm">
+          <h3 className="text-xl font-bold mb-6 text-gray-800 uppercase tracking-wide border-b-2 border-gray-200 pb-3">Estado de Órdenes</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border-l-4 border-yellow-600">
+              <span className="font-bold text-gray-800">Pendientes</span>
+              <span className="text-2xl font-bold text-yellow-700">{stats.pendingOrders}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-purple-50 rounded">
-              <span className="font-medium text-gray-700">📦 En Proceso</span>
-              <span className="text-xl font-bold text-purple-600">{stats.processingOrders}</span>
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border-l-4 border-purple-600">
+              <span className="font-bold text-gray-800">En Proceso</span>
+              <span className="text-2xl font-bold text-purple-700">{stats.processingOrders}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
-              <span className="font-medium text-gray-700">🚚 Enviadas</span>
-              <span className="text-xl font-bold text-blue-600">{stats.shippedOrders}</span>
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-600">
+              <span className="font-bold text-gray-800">Enviadas</span>
+              <span className="text-2xl font-bold text-blue-700">{stats.shippedOrders}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-green-50 rounded">
-              <span className="font-medium text-gray-700">✓ Entregadas</span>
-              <span className="text-xl font-bold text-green-600">{stats.deliveredOrders}</span>
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-l-4 border-green-600">
+              <span className="font-bold text-gray-800">Entregadas</span>
+              <span className="text-2xl font-bold text-green-700">{stats.deliveredOrders}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-red-50 rounded">
-              <span className="font-medium text-gray-700">✗ Canceladas</span>
-              <span className="text-xl font-bold text-red-600">{stats.cancelledOrders}</span>
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border-l-4 border-red-600">
+              <span className="font-bold text-gray-800">Canceladas</span>
+              <span className="text-2xl font-bold text-red-700">{stats.cancelledOrders}</span>
             </div>
           </div>
         </Card>
 
-        <Card>
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Información de Productos</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
-              <span className="font-medium text-gray-700">📊 Total de Productos</span>
-              <span className="text-xl font-bold text-blue-600">{stats.totalProducts}</span>
+        <Card className="border-2 border-gray-200 shadow-sm">
+          <h3 className="text-xl font-bold mb-6 text-gray-800 uppercase tracking-wide border-b-2 border-gray-200 pb-3">Gestión de Productos</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-900">
+              <span className="font-bold text-gray-800">Total de Productos</span>
+              <span className="text-2xl font-bold text-blue-900">{stats.totalProducts}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-green-50 rounded">
-              <span className="font-medium text-gray-700">✓ Productos Activos</span>
-              <span className="text-xl font-bold text-green-600">{stats.activeProducts}</span>
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border-l-4 border-green-700">
+              <span className="font-bold text-gray-800">Productos Activos</span>
+              <span className="text-2xl font-bold text-green-700">{stats.activeProducts}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-              <span className="font-medium text-gray-700">✗ Productos Inactivos</span>
-              <span className="text-xl font-bold text-gray-600">{stats.inactiveProducts}</span>
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border-l-4 border-gray-600">
+              <span className="font-bold text-gray-800">Productos Inactivos</span>
+              <span className="text-2xl font-bold text-gray-700">{stats.inactiveProducts}</span>
             </div>
           </div>
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-3">
-              <span className="font-medium">Resumen:</span>
+          <div className="mt-6 p-5 bg-slate-50 rounded-lg border-2 border-slate-200">
+            <p className="text-sm text-gray-700 font-bold mb-3 uppercase tracking-wide">
+              Información del Sistema
             </p>
-            <ul className="text-sm text-gray-600 space-y-2">
-              <li>• Gestiona tus productos desde la sección "Productos"</li>
-              <li>• Activa o desactiva productos según disponibilidad</li>
-              <li>• Los productos inactivos no son visibles para los clientes</li>
+            <ul className="text-sm text-gray-700 space-y-2 font-medium">
+              <li className="flex items-start">
+                <span className="text-blue-900 mr-2">•</span>
+                <span>Administra el inventario desde la sección "Productos"</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-900 mr-2">•</span>
+                <span>Controla la visibilidad según disponibilidad</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-900 mr-2">•</span>
+                <span>Los productos inactivos no aparecen en la tienda</span>
+              </li>
             </ul>
           </div>
         </Card>

@@ -132,7 +132,7 @@ function ListOrdersPage() {
   return (
     <div>
       <Card>
-        <h1 className='text-3xl mb-4'>Órdenes</h1>
+        <h1 className='text-3xl font-bold text-gray-800 mb-4'>Gestión de Órdenes</h1>
 
         <div className='flex flex-col gap-4 mb-6'>
           {/* Fila 1: Búsqueda */}
@@ -140,7 +140,7 @@ function ListOrdersPage() {
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
-              className="border rounded px-4 py-2 bg-white"
+              className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white font-medium focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20"
             >
               <option value="search">Búsqueda General</option>
               <option value="customerId">ID Cliente</option>
@@ -160,9 +160,9 @@ function ListOrdersPage() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSearch();
                 }}
-                className="border rounded px-4 py-2 flex-1 min-w-0"
+                className="border-2 border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-0 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20"
               />
-              <Button onClick={handleSearch} className="whitespace-nowrap">
+              <Button onClick={handleSearch} className="whitespace-nowrap !bg-blue-900 hover:!bg-blue-800 !text-white font-semibold">
                 Buscar
               </Button>
             </div>
@@ -176,7 +176,7 @@ function ListOrdersPage() {
                 setStatus(e.target.value || null);
                 setPageNumber(1);
               }}
-              className="border rounded px-4 py-2 bg-white"
+              className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white font-medium focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20"
             >
               <option value="">Todos los estados</option>
               <option value="Pending">Pendiente</option>
@@ -189,13 +189,13 @@ function ListOrdersPage() {
             {(status || searchTerm) && (
               <Button 
                 onClick={handleClearFilters}
-                className="bg-gray-500 hover:bg-gray-600"
+                className="!bg-slate-700 hover:!bg-slate-600 !text-white font-semibold"
               >
-                🗑️ Limpiar Filtros
+                Limpiar Filtros
               </Button>
             )}
 
-            <div className="text-sm text-gray-600 flex items-center ml-auto">
+            <div className="text-sm text-gray-700 font-semibold flex items-center ml-auto">
               {totalCount > 0 && (
                 <span>
                   Mostrando {orders.length} de {totalCount} órdenes
@@ -207,62 +207,62 @@ function ListOrdersPage() {
 
         {orders.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-600">
+            <p className="text-gray-600 font-medium">
               {searchTerm || status ? 'No se encontraron órdenes con los filtros aplicados' : 'No hay órdenes para mostrar'}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <Card key={order.id} className="hover:shadow-lg transition-shadow">
-                <div className="flex justify-between items-start">
+              <Card key={order.id} className="hover:shadow-lg transition-shadow border-2 border-gray-200">
+                <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h2 className="text-lg font-semibold">
-                        Orden #{order.id.substring(0, 8)}
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      <h2 className="text-lg font-bold text-gray-800">
+                        Orden #{order.id}
                       </h2>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                        order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'Processing' ? 'bg-purple-100 text-purple-800' :
-                        'bg-yellow-100 text-yellow-800'
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                        order.status === 'Delivered' ? 'bg-green-700 text-white' :
+                        order.status === 'Cancelled' ? 'bg-red-700 text-white' :
+                        order.status === 'Shipped' ? 'bg-blue-700 text-white' :
+                        order.status === 'Processing' ? 'bg-purple-700 text-white' :
+                        'bg-yellow-600 text-white'
                       }`}>
                         {orderStatusLabels[order.status] || order.status}
                       </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                      <p className="text-gray-600">
-                        <span className="font-medium">Cliente:</span> {order.customerName || order.customerFullName || 'Cliente Desconocido'}
+                      <p className="text-gray-700">
+                        <span className="font-bold">Cliente:</span> {order.customerName || order.customerFullName || 'Cliente Desconocido'}
                       </p>
-                      <p className="text-gray-600">
-                        <span className="font-medium">Fecha:</span> {formatDate(order.date)}
+                      <p className="text-gray-700">
+                        <span className="font-bold">Fecha:</span> {formatDate(order.date)}
                       </p>
-                      <p className="text-gray-600">
-                        <span className="font-medium">Total:</span> ${order.totalAmount?.toFixed(2)}
+                      <p className="text-gray-700">
+                        <span className="font-bold">Total:</span> <span className="font-bold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
                       </p>
                       {order.customerId && (
-                        <p className="text-gray-600">
-                          <span className="font-medium">ID Cliente:</span> {order.customerId.substring(0, 8)}...
+                        <p className="text-gray-700">
+                          <span className="font-bold">ID Cliente:</span> <span className="font-mono text-xs">{order.customerId}</span>
                         </p>
                       )}
-                      <p className="text-gray-600 md:col-span-2">
-                        <span className="font-medium">Envío:</span> {order.shippingAddress}
+                      <p className="text-gray-700 md:col-span-2">
+                        <span className="font-bold">Envío:</span> {order.shippingAddress}
                       </p>
                       {order.notes && (
-                        <p className="text-gray-600 md:col-span-2 italic">
-                          <span className="font-medium">Notas:</span> {order.notes}
+                        <p className="text-gray-700 md:col-span-2 italic">
+                          <span className="font-bold">Notas:</span> {order.notes}
                         </p>
                       )}
                       {order.items && order.items.length > 0 && (
-                        <p className="text-gray-500 md:col-span-2">
+                        <p className="text-gray-600 md:col-span-2 font-semibold">
                           {order.items.length} producto{order.items.length !== 1 ? 's' : ''}
                         </p>
                       )}
                     </div>
                   </div>
                   <Button 
-                    className="text-sm px-4 py-2 bg-purple-200 hover:bg-purple-300 text-purple-800 ml-4"
+                    className="text-sm px-5 py-2.5 !bg-blue-900 hover:!bg-blue-800 !text-white font-semibold whitespace-nowrap rounded-lg"
                     onClick={() => navigate(`/admin/orders/${order.id}`)}
                   >
                     Ver Detalle
@@ -275,87 +275,45 @@ function ListOrdersPage() {
       </Card>
 
       {!loading && orders.length > 0 && (
-        <div className='flex flex-col sm:flex-row justify-center items-center gap-3 mt-4'>
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 bg-white rounded-lg shadow-sm border-2 border-gray-200 p-4'>
           <button
             disabled={pageNumber === 1}
             onClick={() => setPageNumber(pageNumber - 1)}
-            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors'
+            className='px-6 py-2.5 bg-blue-900 text-white font-semibold rounded-lg hover:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
           >
-            ← Previous
+            ← Anterior
           </button>
           
-          <div className="flex items-center gap-2">
-            {pageNumber > 2 && (
-              <>
-                <button
-                  onClick={() => setPageNumber(1)}
-                  className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
-                >
-                  1
-                </button>
-                {pageNumber > 3 && <span className="px-2">...</span>}
-              </>
-            )}
-            
-            {pageNumber > 1 && (
-              <button
-                onClick={() => setPageNumber(pageNumber - 1)}
-                className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
+          <div className="flex items-center gap-4">
+            <span className='text-base font-semibold text-gray-800'>
+              Página {pageNumber} de {totalPages} <span className="text-gray-600">({totalCount} órdenes)</span>
+            </span>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-700 font-semibold">Por página:</label>
+              <select
+                value={pageSize}
+                onChange={evt => {
+                  setPageNumber(1);
+                  setPageSize(Number(evt.target.value));
+                }}
+                className='px-3 py-2 border-2 border-gray-300 rounded-lg bg-white font-medium text-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20'
               >
-                {pageNumber - 1}
-              </button>
-            )}
-            
-            <button
-              className='px-3 py-2 bg-purple-600 text-white rounded'
-            >
-              {pageNumber}
-            </button>
-            
-            {pageNumber < totalPages && (
-              <button
-                onClick={() => setPageNumber(pageNumber + 1)}
-                className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
-              >
-                {pageNumber + 1}
-              </button>
-            )}
-            
-            {pageNumber < totalPages - 1 && (
-              <>
-                {pageNumber < totalPages - 2 && <span className="px-2">3</span>}
-                {pageNumber < totalPages - 2 && <span className="px-2">...</span>}
-                <button
-                  onClick={() => setPageNumber(totalPages)}
-                  className='px-3 py-2 rounded hover:bg-gray-200 transition-colors'
-                >
-                  {totalPages}
-                </button>
-              </>
-            )}
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
           </div>
           
           <button
             disabled={pageNumber === totalPages}
             onClick={() => setPageNumber(pageNumber + 1)}
-            className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors'
+            className='px-6 py-2.5 bg-blue-900 text-white font-semibold rounded-lg hover:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
           >
-            Next →
+            Siguiente →
           </button>
-
-          <select
-            value={pageSize}
-            onChange={evt => {
-              setPageNumber(1);
-              setPageSize(Number(evt.target.value));
-            }}
-            className='ml-3 px-3 py-2 border rounded bg-white'
-          >
-            <option value="5">5 por página</option>
-            <option value="10">10 por página</option>
-            <option value="20">20 por página</option>
-            <option value="50">50 por página</option>
-          </select>
         </div>
       )}
     </div>
