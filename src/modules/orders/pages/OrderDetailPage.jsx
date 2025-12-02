@@ -301,12 +301,14 @@ function OrderDetailPage() {
           </div>
 
           {/* Notas */}
-          {order.notes && (
-            <Card>
-              <h2 className="text-xl font-bold mb-3">Notas Adicionales</h2>
+          <Card>
+            <h2 className="text-xl font-bold mb-3">Notas Adicionales</h2>
+            {order.notes ? (
               <p className="text-gray-700 italic">{order.notes}</p>
-            </Card>
-          )}
+            ) : (
+              <p className="text-gray-500 italic">Sin notas adicionales</p>
+            )}
+          </Card>
         </div>
 
         {/* Resumen */}

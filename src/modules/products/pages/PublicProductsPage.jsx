@@ -26,10 +26,14 @@ function PublicProductsPage() {
       setLoading(true);
       setError(null);
 
+      // Si hay búsqueda, traer todos los resultados sin paginación
+      const effectivePageSize = headerSearch ? 1000 : pageSize;
+      const effectivePageNumber = headerSearch ? 1 : pageNumber;
+
       const { data, error } = await getProductsPublic({
         search: headerSearch || null,
-        pageNumber,
-        pageSize,
+        pageNumber: effectivePageNumber,
+        pageSize: effectivePageSize,
       });
 
       if (error) {
@@ -85,31 +89,26 @@ function PublicProductsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
       {/* Título de la sección */}
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-serif font-light mb-4 text-gray-900 tracking-wide">Catálogo de Productos</h1>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+      <div className="text-center mb-6 sm:mb-8 md:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light mb-2 sm:mb-4 text-gray-900 tracking-wide">Catálogo de Productos</h1>
+        <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">
           Distribuidor oficial de Apple en Argentina.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-7xl mx-auto">
         {products.map((product) => {
-          // Generar rating aleatorio entre 4.0 y 5.0 (simulado)
-          const rating = (4 + Math.random()).toFixed(1);
-          const reviews = Math.floor(50 + Math.random() * 300);
-          const fullStars = Math.floor(parseFloat(rating));
-
           return (
             <Card key={product.id} className="overflow-hidden hover:shadow-xl transition-shadow">
               {/* Imagen del producto */}
               {product.imageUrl && (
-                <div className="w-full h-64 bg-white flex items-center justify-center border-b">
+                <div className="w-full h-48 sm:h-56 md:h-64 bg-white flex items-center justify-center border-b">
                   <img
                     src={product.imageUrl}
                     alt={product.name}
-                    className="w-full h-full object-contain p-4"
+                    className="w-full h-full object-contain p-2 sm:p-3 md:p-4"
                     onError={(e) => {
                       e.target.parentElement.style.display = 'none';
                     }}
@@ -117,45 +116,32 @@ function PublicProductsPage() {
                 </div>
               )}
 
-              <div className="p-6">
-                <h5 className="text-xl font-bold tracking-tight mb-2 text-gray-900">
+              <div className="p-3 sm:p-4 md:p-6">
+                <h5 className="text-base sm:text-lg md:text-xl font-bold tracking-tight mb-1 sm:mb-2 text-gray-900">
                   {product.name}
                 </h5>
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 line-clamp-2">
                   {product.description}
                 </p>
-
-                {/* Rating con estrellas */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex text-yellow-400 text-lg">
-                    {[...Array(fullStars)].map((_, i) => (
-                      <span key={`full-${i}`}>★</span>
-                    ))}
-                    {[...Array(5 - fullStars)].map((_, i) => (
-                      <span key={`empty-${i}`} className="text-gray-300">★</span>
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-500">{rating} ({reviews} reviews)</span>
-                </div>
 
                 {/* Stock Badge */}
                 <div className="mb-3">
                   {product.stockQuantity > 0 ? (
                     <span className="inline-flex items-center rounded-md border
-                    border-transparent bg-green-500 text-white px-2.5 py-0.5 text-xs font-semibold">
-                      In Stock ({product.stockQuantity})
+                    border-transparent bg-green-500 text-white px-3 py-0.5 text-s font-semibold">
+                      Stock ({product.stockQuantity})
                     </span>
                   ) : (
                     <span className="inline-flex items-center rounded-md border
-                    border-transparent bg-red-500 text-white px-2.5 py-0.5 text-xs font-semibold">
-                      Out of Stock
+                    border-transparent bg-red-500 text-white px-3 py-0.5 text-s font-semibold">
+                      Sin Stock
                     </span>
                   )}
                 </div>
 
                 {/* Precio */}
-                <div className="mb-4">
-                  <span className="text-2xl font-bold text-gray-900">
+                <div className="mb-3 sm:mb-4">
+                  <span className="text-xl sm:text-2xl font-bold text-gray-900">
                     ${product.currentUnitPrice.toFixed(2)}
                   </span>
                 </div>
@@ -164,10 +150,10 @@ function PublicProductsPage() {
                 {(!isAuthenticated || role !== 'Administrador') && (
                   <Button
                     onClick={() => handleAddToCart(product)}
-                    className="w-full py-3 text-base font-semibold rounded-lg"
+                    className="w-full py-2 sm:py-3 text-sm sm:text-base font-semibold rounded-lg"
                     disabled={product.stockQuantity === 0}
                   >
-                    {product.stockQuantity > 0 ? 'Add to Cart' : 'Out of Stock'}
+                    {product.stockQuantity > 0 ? 'Agregar' : 'Sin Stock'}
                   </Button>
                 )}
 
@@ -188,25 +174,25 @@ function PublicProductsPage() {
         </div>
       )}
 
-      {/* Paginación */}
-      {!loading && products.length > 0 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
+      {/* Paginación - Solo mostrar si no hay búsqueda activa */}
+      {!loading && products.length > 0 && !headerSearch && (
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
           <button
             disabled={!hasPrevious}
             onClick={() => setPageNumber(pageNumber - 1)}
-            className='px-4 py-2 bg-gray-200 rounded disabled:bg-gray-100 disabled:cursor-not-allowed hover:bg-gray-300'
+            className='px-3 sm:px-4 py-2 bg-gray-200 rounded disabled:bg-gray-100 disabled:cursor-not-allowed hover:bg-gray-300 text-sm sm:text-base'
           >
             Atrás
           </button>
 
-          <span className='text-lg'>
+          <span className='text-sm sm:text-base md:text-lg text-center'>
             Página {pageNumber} de {totalPages} ({totalCount} productos)
           </span>
 
           <button
             disabled={!hasNext}
             onClick={() => setPageNumber(pageNumber + 1)}
-            className='px-4 py-2 bg-gray-200 rounded disabled:bg-gray-100 disabled:cursor-not-allowed hover:bg-gray-300'
+            className='px-3 sm:px-4 py-2 bg-gray-200 rounded disabled:bg-gray-100 disabled:cursor-not-allowed hover:bg-gray-300 text-sm sm:text-base'
           >
             Siguiente
           </button>
@@ -217,7 +203,7 @@ function PublicProductsPage() {
               setPageSize(Number(e.target.value));
               setPageNumber(1);
             }}
-            className='px-3 py-2 border rounded bg-white'
+            className='px-2 sm:px-3 py-2 border rounded bg-white text-sm sm:text-base w-full sm:w-auto'
           >
             <option value={5}>5 por página</option>
             <option value={10}>10 por página</option>
@@ -225,6 +211,15 @@ function PublicProductsPage() {
             <option value={20}>20 por página</option>
             <option value={50}>50 por página</option>
           </select>
+        </div>
+      )}
+
+      {/* Mostrar contador de resultados cuando hay búsqueda activa */}
+      {!loading && headerSearch && (
+        <div className="text-center mt-6 sm:mt-8">
+          <span className='text-sm sm:text-base md:text-lg text-gray-600'>
+            {totalCount} {totalCount === 1 ? 'producto encontrado' : 'productos encontrados'}
+          </span>
         </div>
       )}
     </div>

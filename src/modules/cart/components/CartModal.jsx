@@ -52,7 +52,7 @@ function CartModal({ isOpen, onClose }) {
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-[1041] animate-slide-in overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">Shopping Cart</h2>
+          <h2 className="text-xl font-bold text-gray-900">Carrito de Compras</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -137,13 +137,13 @@ function CartModal({ isOpen, onClose }) {
                     onClick={handleCheckout}
                     className="w-full bg-black hover:bg-gray-800 text-white font-medium py-3 rounded-lg transition"
                   >
-                    Proceed to Checkout
+                    Proceder al Pago
                   </button>
                   <button
                     onClick={handleClearCart}
                     className="w-full border border-red-500 text-red-500 hover:bg-red-50 font-medium py-3 rounded-lg transition"
                   >
-                    Clear Cart
+                    Vaciar Carrito
                   </button>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyOrders } from '../services/listServices';
 import useAuth from '../../auth/hook/useAuth';
@@ -13,6 +13,15 @@ const orderStatusLabels = {
   Cancelled: 'Cancelado',
 };
 
+const statusOptions = [
+  { value: '', label: 'Todos los estados' },
+  { value: 'Pending', label: 'Pendiente' },
+  { value: 'Processing', label: 'En Proceso' },
+  { value: 'Shipped', label: 'Enviado' },
+  { value: 'Delivered', label: 'Entregado' },
+  { value: 'Cancelled', label: 'Cancelado' },
+];
+
 function CustomerOrdersPage() {
   const navigate = useNavigate();
   const { role } = useAuth();
@@ -24,6 +33,8 @@ function CustomerOrdersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Redirigir si es administrador
   useEffect(() => {
@@ -78,6 +89,33 @@ function CustomerOrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleStatusChange = (newStatus) => {
+    setStatus(newStatus || null);
+    setPageNumber(1);
+    setIsDropdownOpen(false);
+  };
+
+  const getSelectedLabel = () => {
+    const selected = statusOptions.find(opt => opt.value === (status || ''));
+
+    return selected ? selected.label : 'Todos los estados';
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
 
@@ -114,28 +152,51 @@ function CustomerOrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className='text-4xl font-light text-gray-900 mb-2'>Mis Órdenes</h1>
-        <p className="text-gray-600">Gestiona y revisa tus pedidos</p>
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className='text-2xl sm:text-3xl md:text-4xl font-light text-gray-900 mb-2'>Mis Órdenes</h1>
+        <p className="text-sm sm:text-base text-gray-600">Gestiona y revisa tus pedidos</p>
       </div>
 
-      <div className='flex flex-col sm:flex-row gap-4 mb-6'>
-        <select
-          value={status || ''}
-          onChange={(e) => {
-            setStatus(e.target.value || null);
-            setPageNumber(1);
-          }}
-          className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
-        >
-          <option value="">Todos los estados</option>
-          <option value="Pending">Pendiente</option>
-          <option value="Processing">En Proceso</option>
-          <option value="Shipped">Enviado</option>
-          <option value="Delivered">Entregado</option>
-          <option value="Cancelled">Cancelado</option>
-        </select>
+      <div className='mb-6 sm:mb-8 bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200'>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Filtrar por estado:
+        </label>
+        <div ref={dropdownRef} className="relative w-full sm:max-w-xs">
+          <button
+            type="button"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="w-full flex items-center justify-between border border-gray-300 rounded-lg px-3 py-2.5 text-sm sm:text-base bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+          >
+            <span className="text-gray-700">{getSelectedLabel()}</span>
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isDropdownOpen && (
+            <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+              {statusOptions.map((option) => (
+                <li key={option.value}>
+                  <button
+                    type="button"
+                    onClick={() => handleStatusChange(option.value)}
+                    className={`w-full text-left px-3 py-2.5 text-sm sm:text-base hover:bg-gray-100 transition-colors ${
+                      (status || '') === option.value ? 'bg-gray-50 font-semibold text-gray-900' : 'text-gray-700'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {orders.length === 0 ? (
@@ -143,16 +204,16 @@ function CustomerOrdersPage() {
           <p className="text-gray-600 text-lg">No tienes órdenes</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow p-6">
+            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow p-4 sm:p-5 md:p-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                 <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-3">
-                    <h2 className="text-xl font-semibold text-gray-900">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                       Orden #{order.id}
                     </h2>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold ${
                       order.status === 'Delivered' ? 'bg-green-500 text-white' :
                         order.status === 'Cancelled' ? 'bg-red-500 text-white' :
                           order.status === 'Shipped' ? 'bg-blue-500 text-white' :
@@ -168,7 +229,7 @@ function CustomerOrdersPage() {
                       <span className="font-medium text-gray-700">Fecha:</span> {formatDate(order.date)}
                     </p>
                     <p>
-                      <span className="font-medium text-gray-700">Total:</span> <span className="text-lg font-bold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
+                      <span className="font-medium text-gray-700">Total:</span> <span className="text-base sm:text-lg font-bold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
                     </p>
                     {order.shippingAddress && (
                       <p>
@@ -189,7 +250,7 @@ function CustomerOrdersPage() {
                 </div>
 
                 <Button
-                  className="px-6 py-2 rounded-lg font-medium whitespace-nowrap"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 rounded-lg font-medium text-sm sm:text-base whitespace-nowrap"
                   onClick={() => navigate(`/order/${order.id}`)}
                 >
                   Ver Detalles
@@ -201,23 +262,16 @@ function CustomerOrdersPage() {
       )}
 
       {!loading && orders.length > 0 && (
-        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-4'>
-          <button
-            disabled={pageNumber === 1}
-            onClick={() => setPageNumber(pageNumber - 1)}
-            className='px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium'
-          >
-            ← Anterior
-          </button>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-gray-700">
+        <div className='flex flex-col gap-3 sm:gap-4 mt-6 sm:mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4'>
+          {/* Info y selector en mobile */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm sm:text-base text-gray-700 text-center sm:text-left">
               <span className="font-medium">Página {pageNumber} de {totalPages}</span>
               <span className="text-gray-500">({totalCount} órdenes)</span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <label htmlFor="pageSize" className="text-sm text-gray-600 font-medium">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <label htmlFor="pageSize" className="text-xs sm:text-sm text-gray-600 font-medium">
                 Por página:
               </label>
               <select
@@ -227,7 +281,7 @@ function CustomerOrdersPage() {
                   setPageSize(Number(e.target.value));
                   setPageNumber(1);
                 }}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -237,13 +291,24 @@ function CustomerOrdersPage() {
             </div>
           </div>
 
-          <button
-            disabled={pageNumber === totalPages}
-            onClick={() => setPageNumber(pageNumber + 1)}
-            className='px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium'
-          >
-            Siguiente →
-          </button>
+          {/* Botones de navegación */}
+          <div className="flex gap-2 sm:gap-3">
+            <button
+              disabled={pageNumber === 1}
+              onClick={() => setPageNumber(pageNumber - 1)}
+              className='flex-1 px-4 sm:px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base'
+            >
+              ← Anterior
+            </button>
+
+            <button
+              disabled={pageNumber === totalPages}
+              onClick={() => setPageNumber(pageNumber + 1)}
+              className='flex-1 px-4 sm:px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base'
+            >
+              Siguiente →
+            </button>
+          </div>
         </div>
       )}
     </div>

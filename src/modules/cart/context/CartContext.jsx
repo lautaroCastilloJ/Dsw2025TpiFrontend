@@ -14,25 +14,31 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-
-  // Cargar carrito desde localStorage al iniciar
-  useEffect(() => {
+  const [cartItems, setCartItems] = useState(() => {
+    // Inicializar el estado directamente desde localStorage
     const savedCart = localStorage.getItem('cart');
 
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        return JSON.parse(savedCart);
       } catch (error) {
         console.error('Error al cargar carrito:', error);
         localStorage.removeItem('cart');
+
+        return [];
       }
     }
-  }, []);
+
+    return [];
+  });
 
   // Guardar carrito en localStorage cuando cambie
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
+    if (cartItems.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    } else {
+      localStorage.removeItem('cart');
+    }
   }, [cartItems]);
 
   // Agregar producto al carrito
@@ -79,7 +85,6 @@ export const CartProvider = ({ children }) => {
   // Limpiar todo el carrito
   const clearCart = () => {
     setCartItems([]);
-    localStorage.removeItem('cart');
   };
 
   // Calcular total del carrito

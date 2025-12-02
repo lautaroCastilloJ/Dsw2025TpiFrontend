@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import useAuth from '../../auth/hook/useAuth';
+import { Menu, X } from 'lucide-react';
 
 function Dashboard() {
   const navigate = useNavigate();
   const { singout, username } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const mainElement = document.querySelector('.admin-main-content');
@@ -40,6 +42,10 @@ function Dashboard() {
     `
   );
 
+  const handleLinkClick = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Superior */}
@@ -48,9 +54,20 @@ function Dashboard() {
       }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">
-              Panel Admin
-            </h1>
+            <div className="flex items-center gap-2">
+              {/* Hamburger Menu Button - Only visible on mobile */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="sm:hidden text-white hover:text-gray-300 transition"
+                aria-label="Menú"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">
+                Panel Admin
+              </h1>
+            </div>
 
             <nav className="flex items-center gap-2 sm:gap-4 lg:gap-6">
               <button
@@ -77,6 +94,46 @@ function Dashboard() {
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm sm:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <div
+            className="fixed left-0 top-[72px] bottom-0 w-64 bg-white shadow-xl overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <nav className="p-6">
+              <ul className='flex flex-col gap-2'>
+                <li>
+                  <NavLink
+                    to='/admin'
+                    end
+                    className={getLinkStyles}
+                    onClick={handleLinkClick}
+                  >Principal</NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to='/admin/products'
+                    className={getLinkStyles}
+                    onClick={handleLinkClick}
+                  >Productos</NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to='/admin/orders'
+                    className={getLinkStyles}
+                    onClick={handleLinkClick}
+                  >Órdenes</NavLink>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
 
       {/* Contenido con Sidebar */}
       <div className="flex-grow flex">

@@ -76,6 +76,7 @@ function CartPage() {
         title: 'Iniciar Sesión Requerido',
         text: 'Debes iniciar sesión para realizar una compra',
         showCancelButton: true,
+        showCloseButton: true,
         confirmButtonText: 'Iniciar Sesión',
         cancelButtonText: 'Crear Cuenta',
       }).then((result) => {
@@ -135,7 +136,7 @@ function CartPage() {
           '<input id="swal-billing-zip" class="swal2-input" placeholder="Código Postal">',
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: 'Finalizar Compra',
+        confirmButtonText: 'Continuar',
         cancelButtonText: 'Cancelar',
         preConfirm: () => {
           return {
@@ -166,13 +167,28 @@ function CartPage() {
       billingAddress = shippingAddress;
     }
 
+    // Solicitar notas adicionales
+    const { value: additionalNotes } = await Swal.fire({
+      title: 'Notas Adicionales',
+      html: '<textarea id="swal-notes" class="swal2-textarea" placeholder="Ingresa notas adicionales (opcional)"></textarea>',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Finalizar Compra',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        return document.getElementById('swal-notes').value;
+      },
+    });
+
+    if (additionalNotes === undefined) return; // Usuario canceló
+
     // Crear la orden
     setProcessingOrder(true);
     try {
       const orderData = {
         shippingAddress,
         billingAddress,
-        notes: '',
+        notes: additionalNotes || '',
         orderItems: cartItems.map(item => ({
           productId: item.id,
           quantity: item.quantity,
@@ -236,34 +252,34 @@ function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 bg-gray-50 min-h-screen">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Lista de productos */}
         <div className="lg:col-span-2">
           <Card className="bg-white border border-gray-200">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800">Carrito de Compras</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Carrito de Compras</h1>
               <Button
                 onClick={handleClearCart}
-                className="!bg-gray-700 hover:!bg-gray-600 !text-white"
+                className="!bg-gray-700 hover:!bg-gray-600 !text-white text-sm sm:text-base w-full sm:w-auto"
               >
                 Vaciar Carrito
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {cartItems.map((item) => (
                 <Card key={item.id} className="hover:shadow-md transition-shadow border border-gray-200 bg-gray-50">
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col gap-3 sm:gap-4">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
-                      <p className="text-sm text-gray-600">SKU: {item.sku}</p>
-                      <p className="text-lg font-bold text-gray-800 mt-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800">{item.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600">SKU: {item.sku}</p>
+                      <p className="text-lg sm:text-xl font-bold text-gray-800 mt-1 sm:mt-2">
                         ${item.currentUnitPrice.toFixed(2)}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                       {/* Control de cantidad */}
                       <div className="flex items-center gap-2">
                         <button
@@ -316,15 +332,15 @@ function CartPage() {
 
         {/* Resumen del pedido */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-4 bg-white border border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Resumen del Pedido</h2>
+          <Card className="lg:sticky lg:top-4 bg-white border border-gray-200">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">Resumen del Pedido</h2>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-gray-700 font-medium">
+            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+              <div className="flex justify-between text-gray-700 font-medium text-sm sm:text-base">
                 <span>Productos ({cartItems.reduce((total, item) => total + item.quantity, 0)})</span>
                 <span>${getCartTotal().toFixed(2)}</span>
               </div>
-              <div className="border-t border-gray-300 pt-3 flex justify-between text-xl font-bold">
+              <div className="border-t border-gray-300 pt-2 sm:pt-3 flex justify-between text-lg sm:text-xl font-bold">
                 <span className="text-gray-800">Total</span>
                 <span className="text-gray-800">${getCartTotal().toFixed(2)}</span>
               </div>
@@ -333,14 +349,14 @@ function CartPage() {
             <Button
               onClick={handleCheckout}
               disabled={processingOrder}
-              className="w-full !bg-gray-800 hover:!bg-gray-700 !text-white text-lg py-3 font-semibold"
+              className="w-full !bg-gray-800 hover:!bg-gray-700 !text-white text-base sm:text-lg py-2.5 sm:py-3 font-semibold"
             >
               {processingOrder ? 'Procesando...' : 'Finalizar Compra'}
             </Button>
 
             <Button
               onClick={() => navigate('/')}
-              className="w-full mt-3 !bg-gray-200 hover:!bg-gray-300 !text-gray-800 font-medium"
+              className="w-full mt-3 !bg-gray-200 hover:!bg-gray-300 !text-gray-800 font-medium text-sm sm:text-base py-2 sm:py-2.5"
             >
               Seguir Comprando
             </Button>

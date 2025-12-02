@@ -25,22 +25,22 @@ function AdminDashboardPage() {
     try {
       setLoading(true);
 
-      // Obtener todos los productos
-      const { data: productsData } = await getProductsAdmin({
+      // Obtener total de productos
+      const { data: allProductsData } = await getProductsAdmin({
         pageNumber: 1,
         pageSize: 1,
       });
 
       // Obtener productos activos
-      const { data: activeProducts } = await getProductsAdmin({
-        status: 'true',
+      const { data: activeProductsData } = await getProductsAdmin({
+        status: 'enabled',
         pageNumber: 1,
         pageSize: 1,
       });
 
       // Obtener productos inactivos
-      const { data: inactiveProducts } = await getProductsAdmin({
-        status: 'false',
+      const { data: inactiveProductsData } = await getProductsAdmin({
+        status: 'disabled',
         pageNumber: 1,
         pageSize: 1,
       });
@@ -83,9 +83,9 @@ function AdminDashboardPage() {
       });
 
       setStats({
-        totalProducts: productsData?.totalCount || 0,
-        activeProducts: activeProducts?.totalCount || 0,
-        inactiveProducts: inactiveProducts?.totalCount || 0,
+        totalProducts: allProductsData?.totalCount || 0,
+        activeProducts: activeProductsData?.totalCount || 0,
+        inactiveProducts: inactiveProductsData?.totalCount || 0,
         totalOrders: ordersData?.totalCount || 0,
         pendingOrders: pendingOrders?.totalCount || 0,
         processingOrders: processingOrders?.totalCount || 0,

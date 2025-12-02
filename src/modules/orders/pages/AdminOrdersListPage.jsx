@@ -45,16 +45,8 @@ function AdminOrdersListPage() {
       if (activeSearch.trim()) {
         const searchValue = activeSearch.trim();
 
-        // Detectar si es un GUID para enviarlo como customerId
-        const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-        if (guidRegex.test(searchValue)) {
-          // Es un GUID, enviar como customerId para búsqueda exacta
-          params.customerId = searchValue;
-        } else {
-          // No es un GUID, enviar como search general
-          params.search = searchValue;
-        }
+        // El backend detecta automáticamente si es GUID o texto
+        params.search = searchValue;
       }
 
       const { data, error } = await getOrdersAdmin(params);
@@ -64,8 +56,6 @@ function AdminOrdersListPage() {
 
         return;
       }
-
-      console.log('Admin orders response:', data);
 
       // Manejar respuesta paginada del backend
       if (data && Array.isArray(data.items)) {
@@ -153,7 +143,7 @@ function AdminOrdersListPage() {
             <div className="flex items-center gap-2 flex-1 max-w-3xl">
               <input
                 type="text"
-                placeholder="Buscar por ID de orden, ID de cliente o nombre de cliente..."
+                placeholder="Buscar por ID de orden, ID de cliente o nombre..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}

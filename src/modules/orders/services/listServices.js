@@ -70,11 +70,7 @@ export const getOrdersAdmin = async ({
       params.search = search;
     }
 
-    console.log('Fetching admin orders with params:', params);
-
     const response = await instance.get('/api/orders/admin', { params });
-
-    console.log('Admin orders response:', response.data);
 
     return { data: response.data, error: null };
   } catch (error) {

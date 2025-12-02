@@ -46,9 +46,13 @@ function App() {
           element: <PublicProductsPage />,
         },
         {
-          // Carrito - Accesible sin login, pero requiere login para checkout
+          // Carrito - Solo para clientes (no administradores)
           path: '/cart',
-          element: <CartPage />,
+          element: (
+            <ProtectedRoute allowedRoles={['Cliente']} allowGuests={true}>
+              <CartPage />
+            </ProtectedRoute>
+          ),
         },
         {
           // Mis órdenes - Solo para clientes autenticados

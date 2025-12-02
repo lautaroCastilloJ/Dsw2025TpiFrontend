@@ -9,17 +9,28 @@ export const getProductsAdmin = async ({
   pageSize = 20,
 } = {}) => {
   try {
-    const params = {
-      ...(search && { Search: search }),
-      ...(status && { Status: status }),
-      PageNumber: pageNumber,
-      PageSize: pageSize,
-    };
+    const params = {};
+
+    if (search) params.Search = search;
+
+    if (status) params.Status = status;
+
+    if (pageNumber) params.PageNumber = pageNumber;
+
+    if (pageSize) params.PageSize = pageSize;
 
     const response = await instance.get('api/products/admin', { params });
 
     return { data: response.data, error: null };
   } catch (error) {
+    // Si no hay productos (404 o 400), devolver estructura vacía válida
+    if (error.response?.status === 400 || error.response?.status === 404) {
+      return {
+        data: { items: [], totalCount: 0, totalPages: 0, hasNext: false, hasPrevious: false },
+        error: null,
+      };
+    }
+
     return {
       data: null,
       error: error.response?.data?.message || 'Error al obtener productos',
