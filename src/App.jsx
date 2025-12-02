@@ -6,15 +6,15 @@ import LoginPage from './modules/auth/pages/LoginPage';
 import RegisterPage from './modules/auth/pages/RegisterPage';
 import Dashboard from './modules/templates/components/Dashboard';
 import ProtectedRoute from './modules/auth/components/ProtectedRoute';
-import ListOrdersPage from './modules/orders/pages/ListOrdersPage';
+import AdminOrdersListPage from './modules/orders/pages/AdminOrdersListPage';
 import OrderDetailPage from './modules/orders/pages/OrderDetailPage';
-import HomeAdmin from './modules/home/pages/HomeAdmin';
-import ListProductsPage from './modules/products/pages/ListProductsPage';
-import CreateProductPage from './modules/products/pages/CreateProductPage';
-import EditProductPage from './modules/products/pages/EditProductPage';
-import ProductsListPage from './modules/products/pages/ProductsListPage';
+import AdminDashboardPage from './modules/home/pages/AdminDashboardPage';
+import AdminProductsListPage from './modules/products/pages/AdminProductsListPage';
+import AdminCreateProductPage from './modules/products/pages/AdminCreateProductPage';
+import AdminEditProductPage from './modules/products/pages/AdminEditProductPage';
+import PublicProductsPage from './modules/products/pages/PublicProductsPage';
 import CartPage from './modules/cart/pages/CartPage';
-import MyOrdersPage from './modules/orders/pages/MyOrdersPage';
+import CustomerOrdersPage from './modules/orders/pages/CustomerOrdersPage';
 import Header from './modules/shared/components/Header';
 import Footer from './modules/shared/components/Footer';
 
@@ -43,7 +43,7 @@ function App() {
         {
           // Página principal - Listado de productos público
           path: '/',
-          element: <ProductsListPage />,
+          element: <PublicProductsPage />,
         },
         {
           // Carrito - Accesible sin login, pero requiere login para checkout
@@ -53,12 +53,20 @@ function App() {
         {
           // Mis órdenes - Solo para clientes autenticados
           path: '/my-orders',
-          element: <MyOrdersPage />,
+          element: (
+            <ProtectedRoute>
+              <CustomerOrdersPage />
+            </ProtectedRoute>
+          ),
         },
         {
           // Detalle de orden para cliente
           path: '/order/:orderId',
-          element: <OrderDetailPage />,
+          element: (
+            <ProtectedRoute>
+              <OrderDetailPage />
+            </ProtectedRoute>
+          ),
         },
       ],
     },
@@ -85,25 +93,25 @@ function App() {
         {
           // Dashboard principal con estadísticas
           index: true,
-          element: <HomeAdmin />,
+          element: <AdminDashboardPage />,
         },
         {
           // Gestión de productos
           path: 'products',
-          element: <ListProductsPage />,
+          element: <AdminProductsListPage />,
         },
         {
           path: 'products/create',
-          element: <CreateProductPage />,
+          element: <AdminCreateProductPage />,
         },
         {
           path: 'products/edit/:productId',
-          element: <EditProductPage />,
+          element: <AdminEditProductPage />,
         },
         {
           // Gestión de órdenes
           path: 'orders',
-          element: <ListOrdersPage />,
+          element: <AdminOrdersListPage />,
         },
         {
           path: 'orders/:orderId',

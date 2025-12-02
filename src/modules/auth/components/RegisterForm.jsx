@@ -28,7 +28,7 @@ function RegisterForm() {
 
   const onValid = async (formData) => {
     try {
-      const { data, error } = await register({
+      const { error } = await register({
         userName: formData.userName,
         password: formData.password,
         email: formData.email,
@@ -44,6 +44,7 @@ function RegisterForm() {
           text: error,
           confirmButtonColor: '#3085d6',
         });
+
         return;
       }
 
@@ -57,7 +58,7 @@ function RegisterForm() {
       }).then(() => {
         navigate('/login');
       });
-    } catch (error) {
+    } catch {
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -162,13 +163,13 @@ function RegisterForm() {
         )}
       </div>
 
-      <Button 
-        type='submit' 
+      <Button
+        type='submit'
         className="mt-4 w-full !bg-gray-800 hover:!bg-gray-700 !text-white font-semibold py-3"
       >
         Registrarse
       </Button>
-      
+
       <div className='flex flex-col gap-3 items-center pt-4 border-t border-gray-200'>
         <p className='text-gray-600 text-sm'>¿Ya tienes cuenta?</p>
         <Button

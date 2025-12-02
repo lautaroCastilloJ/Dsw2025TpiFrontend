@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOrdersAdmin } from '../services/listServices';
 import Card from '../../shared/components/Card';
@@ -12,43 +12,48 @@ const orderStatusLabels = {
   Cancelled: 'Cancelado',
 };
 
-function ListOrdersPage() {
+function AdminOrdersListPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Filtros
   const [status, setStatus] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchType, setSearchType] = useState('search'); // 'search', 'customerId', 'customerName'
-  
+  const [activeSearch, setActiveSearch] = useState(''); // Término de búsqueda activo
+
   // Paginación
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Preparar parámetros según el tipo de búsqueda
+
+      // Preparar parámetros de búsqueda
       const params = {
         status,
         pageNumber,
         pageSize,
       };
 
-      if (searchTerm.trim()) {
-        if (searchType === 'customerId') {
-          params.customerId = searchTerm.trim();
-        } else if (searchType === 'customerName') {
-          params.customerName = searchTerm.trim();
+      // Lógica de búsqueda según el backend
+      if (activeSearch.trim()) {
+        const searchValue = activeSearch.trim();
+        
+        // Detectar si es un GUID para enviarlo como customerId
+        const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        
+        if (guidRegex.test(searchValue)) {
+          // Es un GUID, enviar como customerId para búsqueda exacta
+          params.customerId = searchValue;
         } else {
-          // search general (busca en OrderId, CustomerName, Notes)
-          params.search = searchTerm.trim();
+          // No es un GUID, enviar como search general
+          params.search = searchValue;
         }
       }
 
@@ -56,11 +61,12 @@ function ListOrdersPage() {
 
       if (error) {
         setError(error);
+
         return;
       }
 
       console.log('Admin orders response:', data);
-      
+
       // Manejar respuesta paginada del backend
       if (data && Array.isArray(data.items)) {
         setOrders(data.items);
@@ -82,26 +88,33 @@ function ListOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, pageNumber, pageSize, activeSearch]);
 
   useEffect(() => {
     fetchOrders();
-  }, [status, pageNumber, pageSize]);
+  }, [fetchOrders]);
 
   const handleSearch = () => {
+    setActiveSearch(searchTerm);
     setPageNumber(1);
-    fetchOrders();
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const handleClearFilters = () => {
     setStatus(null);
     setSearchTerm('');
-    setSearchType('search');
+    setActiveSearch('');
     setPageNumber(1);
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
@@ -137,32 +150,16 @@ function ListOrdersPage() {
         <div className='flex flex-col gap-4 mb-6'>
           {/* Fila 1: Búsqueda */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <select
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
-              className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white font-medium focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20"
-            >
-              <option value="search">Búsqueda General</option>
-              <option value="customerId">ID Cliente</option>
-              <option value="customerName">Nombre Cliente</option>
-            </select>
-
-            <div className="flex items-center gap-2 flex-1">
+            <div className="flex items-center gap-2 flex-1 max-w-3xl">
               <input
                 type="text"
-                placeholder={
-                  searchType === 'customerId' ? 'Buscar por ID de cliente...' :
-                  searchType === 'customerName' ? 'Buscar por nombre de cliente...' :
-                  'Buscar por ID orden, cliente o notas...'
-                }
+                placeholder="Buscar por ID de orden, ID de cliente o nombre de cliente..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSearch();
-                }}
+                onKeyPress={handleKeyPress}
                 className="border-2 border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-0 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20"
               />
-              <Button onClick={handleSearch} className="whitespace-nowrap !bg-blue-900 hover:!bg-blue-800 !text-white font-semibold">
+              <Button onClick={handleSearch} className="whitespace-nowrap !bg-blue-900 hover:!bg-blue-800 !text-white font-semibold px-6">
                 Buscar
               </Button>
             </div>
@@ -170,10 +167,11 @@ function ListOrdersPage() {
 
           {/* Fila 2: Filtros y acciones */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <select 
-              value={status || ''} 
+            <select
+              value={status || ''}
               onChange={(e) => {
-                setStatus(e.target.value || null);
+                const newStatus = e.target.value || null;
+                setStatus(newStatus);
                 setPageNumber(1);
               }}
               className="border-2 border-gray-300 rounded-lg px-4 py-2 bg-white font-medium focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20"
@@ -186,8 +184,8 @@ function ListOrdersPage() {
               <option value="Cancelled">Cancelado</option>
             </select>
 
-            {(status || searchTerm) && (
-              <Button 
+            {(status || activeSearch) && (
+              <Button
                 onClick={handleClearFilters}
                 className="!bg-slate-700 hover:!bg-slate-600 !text-white font-semibold"
               >
@@ -223,10 +221,10 @@ function ListOrdersPage() {
                       </h2>
                       <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
                         order.status === 'Delivered' ? 'bg-green-700 text-white' :
-                        order.status === 'Cancelled' ? 'bg-red-700 text-white' :
-                        order.status === 'Shipped' ? 'bg-blue-700 text-white' :
-                        order.status === 'Processing' ? 'bg-purple-700 text-white' :
-                        'bg-yellow-600 text-white'
+                          order.status === 'Cancelled' ? 'bg-red-700 text-white' :
+                            order.status === 'Shipped' ? 'bg-blue-700 text-white' :
+                              order.status === 'Processing' ? 'bg-purple-700 text-white' :
+                                'bg-yellow-600 text-white'
                       }`}>
                         {orderStatusLabels[order.status] || order.status}
                       </span>
@@ -261,7 +259,7 @@ function ListOrdersPage() {
                       )}
                     </div>
                   </div>
-                  <Button 
+                  <Button
                     className="text-sm px-5 py-2.5 !bg-blue-900 hover:!bg-blue-800 !text-white font-semibold whitespace-nowrap rounded-lg"
                     onClick={() => navigate(`/admin/orders/${order.id}`)}
                   >
@@ -283,7 +281,7 @@ function ListOrdersPage() {
           >
             ← Anterior
           </button>
-          
+
           <div className="flex items-center gap-4">
             <span className='text-base font-semibold text-gray-800'>
               Página {pageNumber} de {totalPages} <span className="text-gray-600">({totalCount} órdenes)</span>
@@ -306,7 +304,7 @@ function ListOrdersPage() {
               </select>
             </div>
           </div>
-          
+
           <button
             disabled={pageNumber === totalPages}
             onClick={() => setPageNumber(pageNumber + 1)}
@@ -320,4 +318,4 @@ function ListOrdersPage() {
   );
 }
 
-export default ListOrdersPage;
+export default AdminOrdersListPage;

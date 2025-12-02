@@ -3,7 +3,7 @@ import Card from '../../shared/components/Card';
 import { getProductsAdmin } from '../../products/services/list';
 import { getOrdersAdmin } from '../../orders/services/listServices';
 
-function HomeAdmin() {
+function AdminDashboardPage() {
   const [stats, setStats] = useState({
     totalProducts: 0,
     activeProducts: 0,
@@ -26,60 +26,60 @@ function HomeAdmin() {
       setLoading(true);
 
       // Obtener todos los productos
-      const { data: productsData } = await getProductsAdmin({ 
-        pageNumber: 1, 
-        pageSize: 1 
+      const { data: productsData } = await getProductsAdmin({
+        pageNumber: 1,
+        pageSize: 1,
       });
 
       // Obtener productos activos
-      const { data: activeProducts } = await getProductsAdmin({ 
+      const { data: activeProducts } = await getProductsAdmin({
         status: 'true',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
       // Obtener productos inactivos
-      const { data: inactiveProducts } = await getProductsAdmin({ 
+      const { data: inactiveProducts } = await getProductsAdmin({
         status: 'false',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
       // Obtener órdenes (solo el total)
-      const { data: ordersData } = await getOrdersAdmin({ 
-        pageNumber: 1, 
-        pageSize: 1 
+      const { data: ordersData } = await getOrdersAdmin({
+        pageNumber: 1,
+        pageSize: 1,
       });
 
       // Obtener órdenes por estado
-      const { data: pendingOrders } = await getOrdersAdmin({ 
+      const { data: pendingOrders } = await getOrdersAdmin({
         status: 'Pending',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
-      const { data: processingOrders } = await getOrdersAdmin({ 
+      const { data: processingOrders } = await getOrdersAdmin({
         status: 'Processing',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
-      const { data: shippedOrders } = await getOrdersAdmin({ 
+      const { data: shippedOrders } = await getOrdersAdmin({
         status: 'Shipped',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
-      const { data: deliveredOrders } = await getOrdersAdmin({ 
+      const { data: deliveredOrders } = await getOrdersAdmin({
         status: 'Delivered',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
-      const { data: cancelledOrders } = await getOrdersAdmin({ 
+      const { data: cancelledOrders } = await getOrdersAdmin({
         status: 'Cancelled',
-        pageNumber: 1, 
-        pageSize: 1 
+        pageNumber: 1,
+        pageSize: 1,
       });
 
       setStats({
@@ -114,7 +114,7 @@ function HomeAdmin() {
         <h1 className="text-4xl font-bold text-gray-800">Panel de Control</h1>
         <p className="text-gray-600 mt-2 font-medium">Resumen general del sistema</p>
       </div>
-      
+
       {/* Estadísticas principales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Card className="bg-gradient-to-br from-slate-700 to-slate-800 text-white border-none shadow-lg">
@@ -203,4 +203,4 @@ function HomeAdmin() {
   );
 };
 
-export default HomeAdmin;
+export default AdminDashboardPage;

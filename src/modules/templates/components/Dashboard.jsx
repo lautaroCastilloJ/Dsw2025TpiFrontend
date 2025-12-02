@@ -9,7 +9,7 @@ function Dashboard() {
 
   useEffect(() => {
     const mainElement = document.querySelector('.admin-main-content');
-    
+
     const handleScroll = () => {
       if (mainElement && mainElement.scrollTop > 50) {
         setIsScrolled(true);
@@ -20,6 +20,7 @@ function Dashboard() {
 
     if (mainElement) {
       mainElement.addEventListener('scroll', handleScroll);
+
       return () => mainElement.removeEventListener('scroll', handleScroll);
     }
   }, []);
@@ -50,7 +51,7 @@ function Dashboard() {
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">
               Panel Admin
             </h1>
-            
+
             <nav className="flex items-center gap-2 sm:gap-4 lg:gap-6">
               <button
                 onClick={() => navigate('/')}
@@ -58,7 +59,7 @@ function Dashboard() {
               >
                 <span className="hidden sm:inline">Ver Tienda</span>
               </button>
-              
+
               <div className="flex items-center gap-2 lg:gap-3 border-l border-gray-600 pl-2 sm:pl-4 lg:pl-6 ml-2 sm:ml-4">
                 <div className="text-right hidden md:block">
                   <div className="text-sm font-semibold">{username}</div>
@@ -119,7 +120,7 @@ function Dashboard() {
               <p className="text-lg font-semibold">TPI - Panel de Administración</p>
               <p className="text-sm text-gray-400">Gestión completa de la tienda</p>
             </div>
-            
+
             <div className="text-center md:text-right">
               <p className="text-sm text-gray-400">
                 © {new Date().getFullYear()} TPI Store. Todos los derechos reservados.

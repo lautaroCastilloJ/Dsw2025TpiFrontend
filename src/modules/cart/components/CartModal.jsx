@@ -47,7 +47,7 @@ function CartModal({ isOpen, onClose }) {
         className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[1040]"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-[1041] animate-slide-in overflow-y-auto">
         {/* Header */}
@@ -90,7 +90,7 @@ function CartModal({ isOpen, onClose }) {
                     <div className="flex-grow">
                       <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
                       <p className="text-sm text-gray-600 mb-2">${item.currentUnitPrice.toFixed(2)}</p>
-                      
+
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2">
                         <button
@@ -166,7 +166,7 @@ function CartModal({ isOpen, onClose }) {
         }
       `}</style>
     </>,
-    document.body
+    document.body,
   );
 }
 

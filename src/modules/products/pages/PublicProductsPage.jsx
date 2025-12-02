@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { getProductsPublic } from '../services/list';
 import { useCart } from '../../cart/context/CartContext';
 import useAuth from '../../auth/hook/useAuth';
@@ -7,8 +7,7 @@ import Card from '../../shared/components/Card';
 import Button from '../../shared/components/Button';
 import Swal from 'sweetalert2';
 
-function ProductsListPage() {
-  const navigate = useNavigate();
+function PublicProductsPage() {
   const { addToCart } = useCart();
   const { isAuthenticated, role } = useAuth();
   const { headerSearch = '' } = useOutletContext() || {};
@@ -22,11 +21,11 @@ function ProductsListPage() {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data, error } = await getProductsPublic({
         search: headerSearch || null,
         pageNumber,
@@ -35,6 +34,7 @@ function ProductsListPage() {
 
       if (error) {
         setError(error);
+
         return;
       }
 
@@ -49,11 +49,11 @@ function ProductsListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pageNumber, pageSize, headerSearch]);
 
   useEffect(() => {
     fetchProducts();
-  }, [pageNumber, pageSize, headerSearch]);
+  }, [fetchProducts]);
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
@@ -100,14 +100,14 @@ function ProductsListPage() {
           const rating = (4 + Math.random()).toFixed(1);
           const reviews = Math.floor(50 + Math.random() * 300);
           const fullStars = Math.floor(parseFloat(rating));
-          
+
           return (
             <Card key={product.id} className="overflow-hidden hover:shadow-xl transition-shadow">
               {/* Imagen del producto */}
               {product.imageUrl && (
                 <div className="w-full h-64 bg-white flex items-center justify-center border-b">
-                  <img 
-                    src={product.imageUrl} 
+                  <img
+                    src={product.imageUrl}
                     alt={product.name}
                     className="w-full h-full object-contain p-4"
                     onError={(e) => {
@@ -116,7 +116,7 @@ function ProductsListPage() {
                   />
                 </div>
               )}
-              
+
               <div className="p-6">
                 <h5 className="text-xl font-bold tracking-tight mb-2 text-gray-900">
                   {product.name}
@@ -124,7 +124,7 @@ function ProductsListPage() {
                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                   {product.description}
                 </p>
-                
+
                 {/* Rating con estrellas */}
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex text-yellow-400 text-lg">
@@ -137,32 +137,32 @@ function ProductsListPage() {
                   </div>
                   <span className="text-sm text-gray-500">{rating} ({reviews} reviews)</span>
                 </div>
-                
+
                 {/* Stock Badge */}
                 <div className="mb-3">
                   {product.stockQuantity > 0 ? (
-                    <span className="inline-flex items-center rounded-md border 
+                    <span className="inline-flex items-center rounded-md border
                     border-transparent bg-green-500 text-white px-2.5 py-0.5 text-xs font-semibold">
                       In Stock ({product.stockQuantity})
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-md border 
+                    <span className="inline-flex items-center rounded-md border
                     border-transparent bg-red-500 text-white px-2.5 py-0.5 text-xs font-semibold">
                       Out of Stock
                     </span>
                   )}
                 </div>
-                
+
                 {/* Precio */}
                 <div className="mb-4">
                   <span className="text-2xl font-bold text-gray-900">
                     ${product.currentUnitPrice.toFixed(2)}
                   </span>
                 </div>
-                
+
                 {/* Botón */}
                 {(!isAuthenticated || role !== 'Administrador') && (
-                  <Button 
+                  <Button
                     onClick={() => handleAddToCart(product)}
                     className="w-full py-3 text-base font-semibold rounded-lg"
                     disabled={product.stockQuantity === 0}
@@ -170,7 +170,7 @@ function ProductsListPage() {
                     {product.stockQuantity > 0 ? 'Add to Cart' : 'Out of Stock'}
                   </Button>
                 )}
-                
+
                 {isAuthenticated && role === 'Administrador' && (
                   <div className="w-full text-center py-2 text-gray-500 text-sm">
                     Vista previa de la tienda
@@ -198,11 +198,11 @@ function ProductsListPage() {
           >
             Atrás
           </button>
-          
+
           <span className='text-lg'>
             Página {pageNumber} de {totalPages} ({totalCount} productos)
           </span>
-          
+
           <button
             disabled={!hasNext}
             onClick={() => setPageNumber(pageNumber + 1)}
@@ -231,4 +231,4 @@ function ProductsListPage() {
   );
 }
 
-export default ProductsListPage;
+export default PublicProductsPage;

@@ -1,9 +1,9 @@
 import CreateProductForm from '../components/CreateProductForm';
 
-function CreateProductPage() {
+function AdminCreateProductPage() {
   return (
     <CreateProductForm />
   );
 }
 
-export default CreateProductPage;
+export default AdminCreateProductPage;

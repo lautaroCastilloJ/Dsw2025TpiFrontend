@@ -26,20 +26,21 @@ function CreateProductForm() {
   const navigate = useNavigate();
 
   const onValid = async (formData) => {
-    const { data, error } = await createProduct(formData);
+    const { error } = await createProduct(formData);
 
     if (error) {
       // Mensaje más específico si el error contiene información sobre SKU o código duplicado
       const errorTitle = error.toLowerCase().includes('sku') || error.toLowerCase().includes('internalcode') || error.toLowerCase().includes('ya existe')
         ? 'SKU o Código Interno duplicado'
         : 'Error al crear producto';
-      
+
       Swal.fire({
         icon: 'error',
         title: errorTitle,
         text: error,
         confirmButtonColor: '#3085d6',
       });
+
       return;
     }
 
@@ -76,6 +77,7 @@ function CreateProductForm() {
                 if (!value.trim()) {
                   return 'El SKU no puede estar vacío';
                 }
+
                 return true;
               },
             })}
@@ -98,6 +100,7 @@ function CreateProductForm() {
                 if (!value.trim()) {
                   return 'El código único no puede estar vacío';
                 }
+
                 return true;
               },
             })}
@@ -119,6 +122,7 @@ function CreateProductForm() {
               if (!value.trim()) {
                 return 'El nombre no puede estar vacío';
               }
+
               return true;
             },
           })}
@@ -137,6 +141,7 @@ function CreateProductForm() {
                 if (value && !value.trim()) {
                   return 'La descripción no puede estar vacía';
                 }
+
                 return true;
               },
             })}
@@ -165,6 +170,7 @@ function CreateProductForm() {
               if (isNaN(value) || value <= 0) {
                 return 'El precio debe ser un número mayor a 0';
               }
+
               return true;
             },
           })}
@@ -184,9 +190,11 @@ function CreateProductForm() {
               if (isNaN(value) || value < 0) {
                 return 'El stock debe ser un número mayor o igual a 0';
               }
+
               if (!Number.isInteger(value)) {
                 return 'El stock debe ser un número entero';
               }
+
               return true;
             },
           })}
@@ -201,13 +209,16 @@ function CreateProductForm() {
               if (value && value.trim()) {
                 // Validar que sea una URL válida con http o https
                 const urlPattern = /^https?:\/\/.+/i;
+
                 if (!urlPattern.test(value.trim())) {
                   return 'Debe ser una URL válida que comience con http:// o https://';
                 }
+
                 if (value.length > 500) {
                   return 'La URL no puede exceder los 500 caracteres';
                 }
               }
+
               return true;
             },
           })}

@@ -19,17 +19,17 @@ export const handleApiError = (error) => {
   if (error?.response?.data?.message) {
     return error.response.data.message;
   }
-  
+
   // Si el backend envía un código de error sin mensaje
   if (error?.response?.data?.code) {
     return `Error: ${error.response.data.code}`;
   }
-  
+
   // Errores de red o conexión
   if (!error?.response) {
     return 'Error de conexión. Por favor verifica tu conexión a internet.';
   }
-  
+
   // Errores HTTP estándar sin mensaje personalizado
   switch (error?.response?.status) {
     case 400:

@@ -40,6 +40,7 @@ function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
           title: 'Error',
           text: error,
         });
+
         return;
       }
 
@@ -54,6 +55,7 @@ function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
       onSwitchToLogin();
     } catch (error) {
       const errorMessage = handleApiError(error);
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -157,7 +159,7 @@ function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             </label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 {...register('password', {
                   required: 'La contraseña es requerida',
                   minLength: {
@@ -196,7 +198,7 @@ function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
             </label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? "text" : "password"}
+                type={showConfirmPassword ? 'text' : 'password'}
                 {...register('confirmPassword', {
                   required: 'Debes confirmar la contraseña',
                   validate: (value) =>

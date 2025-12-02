@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
+/* eslint-disable react-refresh/only-export-components */
 const CartContext = createContext();
 
 export const useCart = () => {
   const context = useContext(CartContext);
+
   if (!context) {
     throw new Error('useCart debe ser usado dentro de un CartProvider');
   }
+
   return context;
 };
 
@@ -16,6 +19,7 @@ export const CartProvider = ({ children }) => {
   // Cargar carrito desde localStorage al iniciar
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
+
     if (savedCart) {
       try {
         setCartItems(JSON.parse(savedCart));
@@ -35,13 +39,13 @@ export const CartProvider = ({ children }) => {
   const addToCart = (product, quantity = 1) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === product.id);
-      
+
       if (existingItem) {
         // Si el producto ya existe, actualizar cantidad
         return prevItems.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
-            : item
+            : item,
         );
       } else {
         // Si es nuevo, agregarlo
@@ -54,6 +58,7 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = (productId, quantity) => {
     if (quantity <= 0) {
       removeFromCart(productId);
+
       return;
     }
 
@@ -61,8 +66,8 @@ export const CartProvider = ({ children }) => {
       prevItems.map(item =>
         item.id === productId
           ? { ...item, quantity }
-          : item
-      )
+          : item,
+      ),
     );
   };
 

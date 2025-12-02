@@ -10,12 +10,14 @@ export const createProduct = async (formData) => {
       description: formData.description,
       currentUnitPrice: formData.price,
       stockQuantity: formData.stock,
+      imageUrl: formData.imageUrl || null,
     });
+
     return { data: response.data, error: null };
   } catch (error) {
     return {
       data: null,
-      error: handleApiError(error)
+      error: handleApiError(error),
     };
   }
 };

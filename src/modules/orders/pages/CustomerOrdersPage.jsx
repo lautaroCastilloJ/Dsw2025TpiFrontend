@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyOrders } from '../services/listServices';
 import useAuth from '../../auth/hook/useAuth';
@@ -13,9 +13,9 @@ const orderStatusLabels = {
   Cancelled: 'Cancelado',
 };
 
-function MyOrdersPage() {
+function CustomerOrdersPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, role } = useAuth();
+  const { role } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,20 +25,18 @@ function MyOrdersPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Redirigir si no está autenticado o si es administrador
+  // Redirigir si es administrador
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    } else if (role === 'Administrador') {
+    if (role === 'Administrador') {
       navigate('/admin/orders');
     }
-  }, [isAuthenticated, role, navigate]);
+  }, [role, navigate]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data, error } = await getMyOrders({
         status,
         pageNumber,
@@ -47,11 +45,12 @@ function MyOrdersPage() {
 
       if (error) {
         setError(error);
+
         return;
       }
 
       console.log('My orders response:', data);
-      
+
       // Manejar respuesta paginada del backend
       if (data && Array.isArray(data.items)) {
         setOrders(data.items);
@@ -73,14 +72,15 @@ function MyOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, pageNumber, pageSize]);
 
   useEffect(() => {
     fetchOrders();
-  }, [status, pageNumber, pageSize]);
+  }, [fetchOrders]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
@@ -121,8 +121,8 @@ function MyOrdersPage() {
       </div>
 
       <div className='flex flex-col sm:flex-row gap-4 mb-6'>
-        <select 
-          value={status || ''} 
+        <select
+          value={status || ''}
           onChange={(e) => {
             setStatus(e.target.value || null);
             setPageNumber(1);
@@ -154,15 +154,15 @@ function MyOrdersPage() {
                     </h2>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       order.status === 'Delivered' ? 'bg-green-500 text-white' :
-                      order.status === 'Cancelled' ? 'bg-red-500 text-white' :
-                      order.status === 'Shipped' ? 'bg-blue-500 text-white' :
-                      order.status === 'Processing' ? 'bg-purple-500 text-white' :
-                      'bg-yellow-500 text-white'
+                        order.status === 'Cancelled' ? 'bg-red-500 text-white' :
+                          order.status === 'Shipped' ? 'bg-blue-500 text-white' :
+                            order.status === 'Processing' ? 'bg-purple-500 text-white' :
+                              'bg-yellow-500 text-white'
                     }`}>
                       {orderStatusLabels[order.status] || order.status}
                     </span>
                   </div>
-                  
+
                   <div className="space-y-1 text-sm text-gray-600">
                     <p>
                       <span className="font-medium text-gray-700">Fecha:</span> {formatDate(order.date)}
@@ -187,8 +187,8 @@ function MyOrdersPage() {
                     )}
                   </div>
                 </div>
-                
-                <Button 
+
+                <Button
                   className="px-6 py-2 rounded-lg font-medium whitespace-nowrap"
                   onClick={() => navigate(`/order/${order.id}`)}
                 >
@@ -209,13 +209,13 @@ function MyOrdersPage() {
           >
             ← Anterior
           </button>
-          
+
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-gray-700">
               <span className="font-medium">Página {pageNumber} de {totalPages}</span>
               <span className="text-gray-500">({totalCount} órdenes)</span>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <label htmlFor="pageSize" className="text-sm text-gray-600 font-medium">
                 Por página:
@@ -236,7 +236,7 @@ function MyOrdersPage() {
               </select>
             </div>
           </div>
-          
+
           <button
             disabled={pageNumber === totalPages}
             onClick={() => setPageNumber(pageNumber + 1)}
@@ -250,4 +250,4 @@ function MyOrdersPage() {
   );
 }
 
-export default MyOrdersPage;
+export default CustomerOrdersPage;

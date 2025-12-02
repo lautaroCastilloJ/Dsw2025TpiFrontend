@@ -19,6 +19,7 @@ function CartPage() {
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity < 1) return;
+
     updateQuantity(productId, newQuantity);
   };
 
@@ -39,7 +40,7 @@ function CartPage() {
           icon: 'success',
           title: 'Producto eliminado',
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       }
     });
@@ -62,7 +63,7 @@ function CartPage() {
           icon: 'success',
           title: 'Carrito vaciado',
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       }
     });
@@ -84,6 +85,7 @@ function CartPage() {
           setShowRegisterModal(true);
         }
       });
+
       return;
     }
 
@@ -117,6 +119,7 @@ function CartPage() {
 
     if (!shippingStreet || !shippingCity || !shippingState || !shippingZip) {
       Swal.fire('Error', 'Todos los campos de dirección son requeridos', 'error');
+
       return;
     }
 
@@ -150,6 +153,7 @@ function CartPage() {
 
       if (!billingStreet || !billingCity || !billingState || !billingZip) {
         Swal.fire('Error', 'Todos los campos de dirección son requeridos', 'error');
+
         return;
       }
 
@@ -176,7 +180,7 @@ function CartPage() {
         })),
       };
 
-      const { data, error } = await createOrder(orderData);
+      const { error } = await createOrder(orderData);
 
       if (error) {
         Swal.fire({
@@ -184,6 +188,7 @@ function CartPage() {
           title: 'Error al crear la orden',
           text: error,
         });
+
         return;
       }
 
@@ -238,7 +243,7 @@ function CartPage() {
           <Card className="bg-white border border-gray-200">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold text-gray-800">Carrito de Compras</h1>
-              <Button 
+              <Button
                 onClick={handleClearCart}
                 className="!bg-gray-700 hover:!bg-gray-600 !text-white"
               >
@@ -313,7 +318,7 @@ function CartPage() {
         <div className="lg:col-span-1">
           <Card className="sticky top-4 bg-white border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Resumen del Pedido</h2>
-            
+
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-700 font-medium">
                 <span>Productos ({cartItems.reduce((total, item) => total + item.quantity, 0)})</span>
@@ -325,7 +330,7 @@ function CartPage() {
               </div>
             </div>
 
-            <Button 
+            <Button
               onClick={handleCheckout}
               disabled={processingOrder}
               className="w-full !bg-gray-800 hover:!bg-gray-700 !text-white text-lg py-3 font-semibold"
@@ -333,7 +338,7 @@ function CartPage() {
               {processingOrder ? 'Procesando...' : 'Finalizar Compra'}
             </Button>
 
-            <Button 
+            <Button
               onClick={() => navigate('/')}
               className="w-full mt-3 !bg-gray-200 hover:!bg-gray-300 !text-gray-800 font-medium"
             >

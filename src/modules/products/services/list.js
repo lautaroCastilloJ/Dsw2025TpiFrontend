@@ -2,11 +2,11 @@ import { instance } from '../../shared/api/axiosInstance';
 import { handleApiError } from '../../shared/helpers/errorMessages';
 
 // Para administradores: obtiene todos los productos con filtros
-export const getProductsAdmin = async ({ 
-  search = null, 
-  status = null, 
-  pageNumber = 1, 
-  pageSize = 20 
+export const getProductsAdmin = async ({
+  search = null,
+  status = null,
+  pageNumber = 1,
+  pageSize = 20,
 } = {}) => {
   try {
     const params = {
@@ -20,18 +20,18 @@ export const getProductsAdmin = async ({
 
     return { data: response.data, error: null };
   } catch (error) {
-    return { 
-      data: null, 
-      error: error.response?.data?.message || 'Error al obtener productos' 
+    return {
+      data: null,
+      error: error.response?.data?.message || 'Error al obtener productos',
     };
   }
 };
 
 // Para usuarios públicos: obtiene solo productos activos
-export const getProductsPublic = async ({ 
+export const getProductsPublic = async ({
   search = null,
-  pageNumber = 1, 
-  pageSize = 10 
+  pageNumber = 1,
+  pageSize = 10,
 } = {}) => {
   try {
     const params = {
@@ -44,9 +44,9 @@ export const getProductsPublic = async ({
 
     return { data: response.data, error: null };
   } catch (error) {
-    return { 
-      data: null, 
-      error: handleApiError(error)
+    return {
+      data: null,
+      error: handleApiError(error),
     };
   }
 };

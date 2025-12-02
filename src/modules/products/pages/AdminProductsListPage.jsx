@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../shared/components/Button';
 import Card from '../../shared/components/Card';
@@ -12,10 +12,11 @@ const productStatus = {
   DISABLED: 'disabled',
 };
 
-function ListProductsPage() {
+function AdminProductsListPage() {
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeSearch, setActiveSearch] = useState(''); // Término de búsqueda activo
   const [status, setStatus] = useState(productStatus.ALL);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -28,13 +29,13 @@ function ListProductsPage() {
   const [error, setError] = useState(null);  // ← Nuevo para manejar errores
   const [togglingId, setTogglingId] = useState(null);  // ← ID del producto que se está cambiando
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data, error } = await getProducts({
-        search: searchTerm || null,
+        search: activeSearch || null,
         status: status,
         pageNumber,
         pageSize,
@@ -42,6 +43,7 @@ function ListProductsPage() {
 
       if (error) {
         setError(error);
+
         return;
       }
 
@@ -54,15 +56,16 @@ function ListProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, pageSize, pageNumber, activeSearch]);
 
   useEffect(() => {
     fetchProducts();
-  }, [status, pageSize, pageNumber]);
+  }, [fetchProducts]);
 
-  const handleSearch = async () => {
-    setPageNumber(1);  // ← Reset a página 1 al buscar
-    await fetchProducts();
+  const handleSearch = () => {
+    // Si el campo está vacío, limpiar la búsqueda activa para mostrar todos
+    setActiveSearch(searchTerm.trim());
+    setPageNumber(1);
   };
 
   const handleToggleProduct = async (productId, currentStatus) => {
@@ -77,6 +80,7 @@ function ListProductsPage() {
           text: error,
         });
         setTogglingId(null);
+
         return;
       }
 
@@ -84,10 +88,11 @@ function ListProductsPage() {
 
       // Actualizar el producto en la lista local con el nuevo estado
       const newStatus = data?.isActive !== undefined ? data.isActive : !currentStatus;
-      setProducts(prevProducts => 
-        prevProducts.map(p => 
-          p.id === productId ? { ...p, isActive: newStatus } : p
-        )
+
+      setProducts(prevProducts =>
+        prevProducts.map(p =>
+          p.id === productId ? { ...p, isActive: newStatus } : p,
+        ),
       );
 
       Swal.fire({
@@ -139,12 +144,13 @@ function ListProductsPage() {
 
         {/* Barra de búsqueda y filtros */}
         <div className='flex flex-col sm:flex-row gap-4 mb-3'>
-          <select 
+          <select
             onChange={evt => {
               const value = evt.target.value;
+
               setStatus(value === 'null' ? null : value);
               setPageNumber(1);
-            }} 
+            }}
             className='text-[1.3rem] border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20'
           >
             <option value="null">Todos los estados</option>
@@ -153,15 +159,15 @@ function ListProductsPage() {
           </select>
 
           <div className='flex items-center gap-3 flex-1'>
-            <input 
-              value={searchTerm} 
+            <input
+              value={searchTerm}
               onChange={(evt) => setSearchTerm(evt.target.value)}
               onKeyDown={(evt) => {
                 if (evt.key === 'Enter') handleSearch();
               }}
-              type="text" 
-              placeholder='Buscar por SKU, nombre o descripción...' 
-              className='text-[1.3rem] w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20' 
+              type="text"
+              placeholder='Buscar por SKU o nombre...'
+              className='text-[1.3rem] w-full border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-900 focus:ring-2 focus:ring-blue-900/20'
             />
             <Button className='h-11 w-11 !bg-blue-900 hover:!bg-blue-800 rounded-lg' onClick={handleSearch}>
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -173,7 +179,7 @@ function ListProductsPage() {
               </svg>
             </Button>
           </div>
-          
+
           {/* Contador de productos */}
           {!loading && !error && (
             <div className="flex items-center text-gray-700 text-sm font-semibold whitespace-nowrap">
@@ -185,15 +191,15 @@ function ListProductsPage() {
 
       <div className='mt-4 flex flex-col gap-4'>
         {loading && <span className="text-gray-700 font-medium">Cargando productos...</span>}
-        
+
         {error && <span className='text-red-600 font-semibold'>{error}</span>}
-        
+
         {!loading && !error && products.length === 0 && (
           <Card>
             <p className='text-center text-gray-600 font-medium'>No se encontraron productos</p>
           </Card>
         )}
-        
+
         {!loading && !error && products.map(product => (
           <Card key={product.id}>
             <div className='flex justify-between items-start'>
@@ -207,18 +213,18 @@ function ListProductsPage() {
                 </p>
               </div>
               <div className='flex gap-2'>
-                <Button 
+                <Button
                   onClick={() => navigate(`/admin/products/edit/${product.id}`)}
                   className='text-sm !bg-slate-700 hover:!bg-slate-600 !text-white font-semibold'
                 >
                   Editar
                 </Button>
-                <Button 
+                <Button
                   onClick={() => handleToggleProduct(product.id, product.isActive)}
                   disabled={togglingId === product.id}
                   className={`text-sm !text-white font-semibold ${
-                    product.isActive 
-                      ? '!bg-red-700 hover:!bg-red-600' 
+                    product.isActive
+                      ? '!bg-red-700 hover:!bg-red-600'
                       : '!bg-green-700 hover:!bg-green-600'
                   }`}
                 >
@@ -239,11 +245,11 @@ function ListProductsPage() {
           >
             ← Anterior
           </button>
-          
+
           <span className='text-base font-semibold text-gray-800'>
             Página {pageNumber} de {totalPages} <span className="text-gray-600">({totalCount} productos)</span>
           </span>
-          
+
           <button
             disabled={pageNumber === totalPages}
             onClick={() => setPageNumber(pageNumber + 1)}
@@ -275,4 +281,4 @@ function ListProductsPage() {
   );
 }
 
-export default ListProductsPage;
+export default AdminProductsListPage;

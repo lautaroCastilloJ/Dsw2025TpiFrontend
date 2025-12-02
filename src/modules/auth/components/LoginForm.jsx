@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -8,7 +7,6 @@ import useAuth from '../hook/useAuth';
 import { handleApiError } from '../../shared/helpers/errorMessages';
 
 function LoginForm() {
-  const [errorMessage, setErrorMessage] = useState('');
   const {
     register,
     handleSubmit,
@@ -17,7 +15,7 @@ function LoginForm() {
 
   const navigate = useNavigate();
 
-  const { singin, role: userRole } = useAuth();
+  const { singin } = useAuth();
 
   const onValid = async (formData) => {
     try {
@@ -30,6 +28,7 @@ function LoginForm() {
           text: error,
           confirmButtonColor: '#3085d6',
         });
+
         return;
       }
 
@@ -44,7 +43,7 @@ function LoginForm() {
       setTimeout(() => {
         // Obtener el rol del localStorage después del login
         const role = localStorage.getItem('role');
-        
+
         // Redirigir según el rol
         if (role === 'Administrador') {
           navigate('/admin');
@@ -54,7 +53,7 @@ function LoginForm() {
       }, 1500);
     } catch (error) {
       const message = handleApiError(error);
-      
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -65,7 +64,7 @@ function LoginForm() {
   };
 
   return (
-    <form 
+    <form
       className='flex flex-col gap-6 bg-white p-8 w-full max-w-md rounded-lg shadow-md border border-gray-200'
       onSubmit={handleSubmit(onValid)}
     >
@@ -81,7 +80,7 @@ function LoginForm() {
         }) }
         error={errors.username?.message}
       />
-      
+
       <Input
         label='Contraseña'
         { ...register('password', {
@@ -91,18 +90,18 @@ function LoginForm() {
         error={errors.password?.message}
       />
 
-      <Button 
-        type='submit' 
+      <Button
+        type='submit'
         className='w-full !bg-gray-800 hover:!bg-gray-700 !text-white font-semibold py-3 mt-2'
       >
         Iniciar Sesión
       </Button>
-      
+
       <div className='flex flex-col gap-3 items-center pt-4 border-t border-gray-200'>
         <p className='text-gray-600 text-sm'>¿No tienes cuenta?</p>
         <Link to='/signup' className='w-full'>
-          <Button 
-            type='button' 
+          <Button
+            type='button'
             className='w-full !bg-slate-600 hover:!bg-slate-700 !text-white font-medium'
           >
             Crear Cuenta

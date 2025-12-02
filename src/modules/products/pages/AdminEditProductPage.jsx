@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { getProductById, updateProduct, toggleProductEnabled } from '../services/update';
+import { getProductById, updateProduct } from '../services/update';
 import Card from '../../shared/components/Card';
 import Input from '../../shared/components/Input';
 import Button from '../../shared/components/Button';
 import Swal from 'sweetalert2';
 
-function EditProductPage() {
+function AdminEditProductPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [togglingStatus, setTogglingStatus] = useState(false);
   const [productStatus, setProductStatus] = useState(null);
 
   const {
@@ -22,11 +21,7 @@ function EditProductPage() {
     reset,
   } = useForm();
 
-  useEffect(() => {
-    fetchProduct();
-  }, [productId]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await getProductById(productId);
@@ -38,6 +33,7 @@ function EditProductPage() {
           text: error,
         });
         navigate('/admin/products');
+
         return;
       }
 
@@ -65,9 +61,13 @@ function EditProductPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId, navigate, reset]);
 
-  const onSubmit = async (formData) => {
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
+
+  const onValid = async (formData) => {
     setSubmitting(true);
 
     try {
@@ -84,20 +84,21 @@ function EditProductPage() {
 
       console.log('Submitting product update:', productData);
 
-      const { data, error } = await updateProduct(productId, productData);
+      const { error } = await updateProduct(productId, productData);
 
       if (error) {
         // Mensaje más específico si el error contiene información sobre SKU o código duplicado
         const errorTitle = error.toLowerCase().includes('sku') || error.toLowerCase().includes('internalcode') || error.toLowerCase().includes('ya existe')
           ? 'SKU o Código Interno duplicado'
           : 'Error al actualizar producto';
-        
+
         Swal.fire({
           icon: 'error',
           title: errorTitle,
           text: error,
           confirmButtonColor: '#3085d6',
         });
+
         return;
       }
 
@@ -122,43 +123,6 @@ function EditProductPage() {
     }
   };
 
-  const handleToggleStatus = async () => {
-    setTogglingStatus(true);
-    try {
-      const { data, error } = await toggleProductEnabled(productId, productStatus);
-
-      if (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error,
-        });
-        return;
-      }
-
-      // Actualizar el estado local con la respuesta del servidor
-      const newStatus = data.isActive;
-      setProductStatus(newStatus);
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Estado actualizado',
-        text: `El producto se ${newStatus ? 'activó' : 'desactivó'} correctamente`,
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      console.error('Error toggling product status:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Ocurrió un error al cambiar el estado del producto',
-      });
-    } finally {
-      setTogglingStatus(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -180,7 +144,7 @@ function EditProductPage() {
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onValid)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* SKU */}
             <div>
@@ -196,6 +160,7 @@ function EditProductPage() {
                     if (!value.trim()) {
                       return 'El SKU no puede estar vacío';
                     }
+
                     return true;
                   },
                 })}
@@ -220,6 +185,7 @@ function EditProductPage() {
                     if (!value.trim()) {
                       return 'El código interno no puede estar vacío';
                     }
+
                     return true;
                   },
                 })}
@@ -244,6 +210,7 @@ function EditProductPage() {
                 if (!value.trim()) {
                   return 'El nombre no puede estar vacío';
                 }
+
                 return true;
               },
             })}
@@ -266,6 +233,7 @@ function EditProductPage() {
                   if (!value.trim()) {
                     return 'La descripción no puede estar vacía';
                   }
+
                   return true;
                 },
               })}
@@ -296,6 +264,7 @@ function EditProductPage() {
                   if (isNaN(value) || value <= 0) {
                     return 'El precio debe ser un número mayor a 0';
                   }
+
                   return true;
                 },
               })}
@@ -317,9 +286,11 @@ function EditProductPage() {
                   if (isNaN(value) || value < 0) {
                     return 'El stock debe ser un número mayor o igual a 0';
                   }
+
                   if (!Number.isInteger(value)) {
                     return 'El stock debe ser un número entero';
                   }
+
                   return true;
                 },
               })}
@@ -337,13 +308,16 @@ function EditProductPage() {
                 if (value && value.trim()) {
                   // Validar que sea una URL válida con http o https
                   const urlPattern = /^https?:\/\/.+/i;
+
                   if (!urlPattern.test(value.trim())) {
                     return 'Debe ser una URL válida que comience con http:// o https://';
                   }
+
                   if (value.length > 500) {
                     return 'La URL no puede exceder los 500 caracteres';
                   }
                 }
+
                 return true;
               },
             })}
@@ -395,4 +369,4 @@ function EditProductPage() {
   );
 }
 
-export default EditProductPage;
+export default AdminEditProductPage;

@@ -30,6 +30,7 @@ function Header({ onSearch, searchTerm = '' }) {
     };
 
     window.addEventListener('scroll', handleScroll);
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -41,6 +42,7 @@ function Header({ onSearch, searchTerm = '' }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
+
     if (onSearch) {
       onSearch(localSearchTerm);
     }
@@ -48,21 +50,22 @@ function Header({ onSearch, searchTerm = '' }) {
 
   const handleHomeClick = () => {
     setLocalSearchTerm('');
+
     if (onSearch) {
       onSearch('');
     }
+
     navigate('/');
   };
 
   return (
     <>
-      <header className={`shadow-md sticky top-0 z-30 transition-all duration-300 ${
-        isScrolled ? 'bg-white/80 backdrop-blur-md' : 'bg-white'
-      }`}>
+      <header className={`shadow-md sticky top-0 z-30 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md' : 'bg-white'
+        }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center gap-4">
             {/* Logo */}
-            <button 
+            <button
               onClick={handleHomeClick}
               className="text-3xl font-stretch-90% text-gray-900 hover:text-gray-700 transition cursor-pointer"
             >
@@ -146,16 +149,16 @@ function Header({ onSearch, searchTerm = '' }) {
                     </Link>
                   )}
 
-                  <div className="flex items-center gap-3 border-l border-gray-300 pl-4 ml-2">
+                  <div className="flex items-center gap-3 border-l border-gray-300 pl-4 ml-4">
                     <div className="text-right">
                       <div className="text-sm font-semibold text-gray-900">{username}</div>
                       <div className="text-xs text-gray-500">{role}</div>
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                      className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ml-4"
                     >
-                      Salir
+                      Cerrar Sesión
                     </button>
                   </div>
                 </>
@@ -164,7 +167,7 @@ function Header({ onSearch, searchTerm = '' }) {
                   onClick={() => setShowLoginModal(true)}
                   className="bg-black hover:bg-gray-800 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors"
                 >
-                  Sign In
+                  Iniciar Sesión
                 </button>
               )}
             </nav>
@@ -249,7 +252,7 @@ function Header({ onSearch, searchTerm = '' }) {
             setShowRegisterModal(true);
           }}
         />,
-        document.body
+        document.body,
       )}
 
       {createPortal(
@@ -261,7 +264,7 @@ function Header({ onSearch, searchTerm = '' }) {
             setShowLoginModal(true);
           }}
         />,
-        document.body
+        document.body,
       )}
 
       <CartModal

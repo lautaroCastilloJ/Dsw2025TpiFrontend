@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import useAuth from '../hook/useAuth';
 import { handleApiError } from '../../shared/helpers/errorMessages';
 import Input from '../../shared/components/Input';
@@ -8,7 +7,6 @@ import Button from '../../shared/components/Button';
 import Swal from 'sweetalert2';
 
 function LoginModal({ isOpen, onClose, onSwitchToRegister, requireClientRole = false }) {
-  const navigate = useNavigate();
   const { singin } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -22,11 +20,11 @@ function LoginModal({ isOpen, onClose, onSwitchToRegister, requireClientRole = f
     setLoading(true);
     try {
       await singin(data.username, data.password);
-      
+
       // Si se requiere que sea cliente, validar el rol
       if (requireClientRole) {
         const role = localStorage.getItem('role');
-        
+
         if (role !== 'Cliente') {
           // Si no es cliente, cerrar sesión y mostrar error
           localStorage.clear();
@@ -36,10 +34,11 @@ function LoginModal({ isOpen, onClose, onSwitchToRegister, requireClientRole = f
             text: 'Solo los clientes pueden realizar compras. Los administradores deben usar el panel de administración.',
           });
           setLoading(false);
+
           return;
         }
       }
-      
+
       onClose();
       Swal.fire({
         icon: 'success',
@@ -50,6 +49,7 @@ function LoginModal({ isOpen, onClose, onSwitchToRegister, requireClientRole = f
       });
     } catch (error) {
       const errorMessage = handleApiError(error);
+
       Swal.fire({
         icon: 'error',
         title: 'Error',

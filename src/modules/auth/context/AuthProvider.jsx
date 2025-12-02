@@ -6,11 +6,14 @@ const AuthContext = createContext();
 function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const token = localStorage.getItem('token');
+
     // Validar que el token exista y tenga contenido válido
     if (!token || token === 'undefined' || token === 'null') {
       localStorage.clear();
+
       return false;
     }
+
     return Boolean(token);
   });
 
@@ -31,7 +34,7 @@ function AuthProvider({ children }) {
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role');
     const storedUsername = localStorage.getItem('username');
-    
+
     // Si falta algún dato crítico, limpiar todo
     if (token && (!storedRole || !storedUsername)) {
       localStorage.clear();
@@ -66,9 +69,12 @@ function AuthProvider({ children }) {
     setRole(data.role);
 
     // Guardar username
-    const savedUsername = localStorage.getItem('username');
-    if (savedUsername) {
-      setUsername(savedUsername);
+    if (data.username) {
+      localStorage.setItem('username', data.username);
+      setUsername(data.username);
+    } else {
+      localStorage.setItem('username', username);
+      setUsername(username);
     }
 
     // Guardar customerId solo si existe (rol Cliente)

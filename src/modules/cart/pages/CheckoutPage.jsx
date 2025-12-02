@@ -29,6 +29,7 @@ function CheckoutPage() {
         title: 'Carrito vacío',
         text: 'No hay productos en el carrito',
       });
+
       return;
     }
 
@@ -37,9 +38,9 @@ function CheckoutPage() {
     try {
       // Construir dirección de envío (formato exacto del backend)
       const shippingAddress = `Calle: ${formData.shippingStreet.trim()}, Altura: ${formData.shippingNumber.trim()}, Ciudad: ${formData.shippingCity.trim()}, Provincia: ${formData.shippingProvince.trim()}`;
-      
+
       // Construir dirección de facturación
-      const billingAddress = useSameAddress 
+      const billingAddress = useSameAddress
         ? shippingAddress
         : `Calle: ${formData.billingStreet.trim()}, Altura: ${formData.billingNumber.trim()}, Ciudad: ${formData.billingCity.trim()}, Provincia: ${formData.billingProvince.trim()}`;
 
@@ -66,12 +67,13 @@ function CheckoutPage() {
           title: 'Error al crear orden',
           text: error,
         });
+
         return;
       }
 
       // Limpiar carrito y mostrar éxito
       clearCart();
-      
+
       await Swal.fire({
         icon: 'success',
         title: '¡Orden creada exitosamente!',
@@ -122,30 +124,30 @@ function CheckoutPage() {
                 <div className="md:col-span-2">
                   <Input
                     label="Calle"
-                    {...register('shippingStreet', { 
-                      required: 'La calle es requerida' 
+                    {...register('shippingStreet', {
+                      required: 'La calle es requerida',
                     })}
                     error={errors.shippingStreet?.message}
                   />
                 </div>
                 <Input
                   label="Altura"
-                  {...register('shippingNumber', { 
-                    required: 'La altura es requerida' 
+                  {...register('shippingNumber', {
+                    required: 'La altura es requerida',
                   })}
                   error={errors.shippingNumber?.message}
                 />
                 <Input
                   label="Ciudad"
-                  {...register('shippingCity', { 
-                    required: 'La ciudad es requerida' 
+                  {...register('shippingCity', {
+                    required: 'La ciudad es requerida',
                   })}
                   error={errors.shippingCity?.message}
                 />
                 <Input
                   label="Provincia"
-                  {...register('shippingProvince', { 
-                    required: 'La provincia es requerida' 
+                  {...register('shippingProvince', {
+                    required: 'La provincia es requerida',
                   })}
                   error={errors.shippingProvince?.message}
                 />
@@ -171,30 +173,30 @@ function CheckoutPage() {
                   <div className="md:col-span-2">
                     <Input
                       label="Calle"
-                      {...register('billingStreet', { 
-                        required: !useSameAddress ? 'La calle es requerida' : false 
+                      {...register('billingStreet', {
+                        required: !useSameAddress ? 'La calle es requerida' : false,
                       })}
                       error={errors.billingStreet?.message}
                     />
                   </div>
                   <Input
                     label="Altura"
-                    {...register('billingNumber', { 
-                      required: !useSameAddress ? 'La altura es requerida' : false 
+                    {...register('billingNumber', {
+                      required: !useSameAddress ? 'La altura es requerida' : false,
                     })}
                     error={errors.billingNumber?.message}
                   />
                   <Input
                     label="Ciudad"
-                    {...register('billingCity', { 
-                      required: !useSameAddress ? 'La ciudad es requerida' : false 
+                    {...register('billingCity', {
+                      required: !useSameAddress ? 'La ciudad es requerida' : false,
                     })}
                     error={errors.billingCity?.message}
                   />
                   <Input
                     label="Provincia"
-                    {...register('billingProvince', { 
-                      required: !useSameAddress ? 'La provincia es requerida' : false 
+                    {...register('billingProvince', {
+                      required: !useSameAddress ? 'La provincia es requerida' : false,
                     })}
                     error={errors.billingProvince?.message}
                   />
@@ -217,7 +219,7 @@ function CheckoutPage() {
           <div className="lg:col-span-1">
             <Card className="sticky top-4">
               <h2 className="text-2xl font-bold mb-4">Resumen del Pedido</h2>
-              
+
               <div className="space-y-3 mb-6">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
@@ -242,7 +244,7 @@ function CheckoutPage() {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-green-600 hover:bg-green-700 text-lg py-3"
@@ -250,7 +252,7 @@ function CheckoutPage() {
                 {loading ? 'Procesando...' : 'Confirmar Compra'}
               </Button>
 
-              <Button 
+              <Button
                 type="button"
                 onClick={() => navigate('/cart')}
                 className="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800"

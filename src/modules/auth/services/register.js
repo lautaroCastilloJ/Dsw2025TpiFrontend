@@ -11,18 +11,18 @@ export const register = async (userData) => {
       phoneNumber: userData.phoneNumber,
       role: userData.role || 'Cliente', // Rol por defecto
     });
-    
+
     return { data: response.data, error: null };
   } catch (error) {
     console.error('Register error details:', {
       message: error.message,
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
     });
-    
-    return { 
-      data: null, 
-      error: handleApiError(error)
+
+    return {
+      data: null,
+      error: handleApiError(error),
     };
   }
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getOrderById } from '../services/detailService';
 import { updateOrderStatus } from '../services/updateService';
@@ -24,11 +24,7 @@ function OrderDetailPage() {
   const [error, setError] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  useEffect(() => {
-    fetchOrderDetails();
-  }, [orderId]);
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,6 +33,7 @@ function OrderDetailPage() {
 
       if (error) {
         setError(error);
+
         return;
       }
 
@@ -47,10 +44,15 @@ function OrderDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+  }, [fetchOrderDetails]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
@@ -63,6 +65,7 @@ function OrderDetailPage() {
   const handleUpdateStatus = async () => {
     // Estados finales - no se pueden cambiar
     const finalStatuses = ['Delivered', 'Cancelled'];
+
     if (finalStatuses.includes(order.status)) {
       Swal.fire({
         icon: 'info',
@@ -70,6 +73,7 @@ function OrderDetailPage() {
         text: `Esta orden ya está en estado "${orderStatusLabels[order.status]}" y no puede ser modificada.`,
         confirmButtonColor: '#3085d6',
       });
+
       return;
     }
 
@@ -83,9 +87,10 @@ function OrderDetailPage() {
     };
 
     const allowedStatuses = validTransitions[order.status] || [];
-    
+
     // Crear opciones solo con las transiciones válidas
     const statusOptions = {};
+
     allowedStatuses.forEach(status => {
       const labels = {
         Pending: 'Pendiente',
@@ -94,6 +99,7 @@ function OrderDetailPage() {
         Delivered: 'Entregado',
         Cancelled: 'Cancelado',
       };
+
       statusOptions[status] = labels[status];
     });
 
@@ -104,6 +110,7 @@ function OrderDetailPage() {
         text: `Esta orden está en estado "${orderStatusLabels[order.status]}" y no puede ser modificada.`,
         confirmButtonColor: '#3085d6',
       });
+
       return;
     }
 
@@ -122,16 +129,17 @@ function OrderDetailPage() {
       heightAuto: false,
       customClass: {
         popup: 'swal-tall-popup',
-        input: 'swal-large-input'
+        input: 'swal-large-input',
       },
       inputValidator: (value) => {
         if (!value || value === order.status) {
           return 'Debes seleccionar un estado diferente al actual';
         }
+
         if (!allowedStatuses.includes(value)) {
           return 'Transición de estado no permitida';
         }
-      }
+      },
     });
 
     if (!newStatus) return;
@@ -139,7 +147,7 @@ function OrderDetailPage() {
     setUpdatingStatus(true);
 
     try {
-      const { data, error } = await updateOrderStatus(orderId, newStatus);
+      const { error } = await updateOrderStatus(orderId, newStatus);
 
       if (error) {
         Swal.fire({
@@ -147,6 +155,7 @@ function OrderDetailPage() {
           title: 'Error al actualizar',
           text: error,
         });
+
         return;
       }
 
@@ -232,14 +241,14 @@ function OrderDetailPage() {
               <div className="flex flex-col items-end gap-2">
                 <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
                   order.status === 'Delivered' ? 'bg-green-500 text-white' :
-                  order.status === 'Cancelled' ? 'bg-red-500 text-white' :
-                  order.status === 'Shipped' ? 'bg-blue-500 text-white' :
-                  order.status === 'Processing' ? 'bg-purple-500 text-white' :
-                  'bg-yellow-500 text-white'
+                    order.status === 'Cancelled' ? 'bg-red-500 text-white' :
+                      order.status === 'Shipped' ? 'bg-blue-500 text-white' :
+                        order.status === 'Processing' ? 'bg-purple-500 text-white' :
+                          'bg-yellow-500 text-white'
                 }`}>
                   {orderStatusLabels[order.status] || order.status}
                 </span>
-                
+
                 {/* Botón de actualizar estado si no está en estado final y el usuario es administrador */}
                 {role === 'Administrador' && !['Delivered', 'Cancelled'].includes(order.status) && (
                   <Button
@@ -304,13 +313,23 @@ function OrderDetailPage() {
         <div className="lg:col-span-1">
           <Card className="sticky top-4">
             <h2 className="text-2xl font-bold mb-4">Resumen</h2>
-            
+
             <div className="space-y-3">
-              <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>${order.totalAmount?.toFixed(2)}</span>
-              </div>
-              
+              {/* Detalle de productos */}
+              {order.items && order.items.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {order.items.map((item, index) => (
+                    <div key={index} className="border-b pb-2 last:border-b-0">
+                      <p className="font-medium text-sm text-gray-800">{item.productName}</p>
+                      <div className="flex justify-between text-xs text-gray-600 mt-1">
+                        <span>${item.unitPrice.toFixed(2)} x {item.quantity}</span>
+                        <span className="font-semibold">${item.subtotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="border-t pt-3 flex justify-between text-xl font-bold">
                 <span>Total</span>
                 <span className="text-green-600">${order.totalAmount?.toFixed(2)}</span>
