@@ -65,19 +65,15 @@ function LoginForm() {
   };
 
   return (
-    <form className='
-        flex
-        flex-col
-        gap-20
-        bg-white
-        p-8
-        sm:w-md
-        sm:gap-4
-        sm:rounded-lg
-        sm:shadow-lg
-      '
-    onSubmit={handleSubmit(onValid)}
+    <form 
+      className='flex flex-col gap-6 bg-white p-8 w-full max-w-md rounded-lg shadow-md border border-gray-200'
+      onSubmit={handleSubmit(onValid)}
     >
+      <div className='mb-2'>
+        <h2 className='text-2xl font-bold text-gray-800'>Iniciar Sesión</h2>
+        <p className='text-sm text-gray-600 mt-1'>Ingresa tus credenciales para continuar</p>
+      </div>
+
       <Input
         label='Usuario'
         { ...register('username', {
@@ -85,6 +81,7 @@ function LoginForm() {
         }) }
         error={errors.username?.message}
       />
+      
       <Input
         label='Contraseña'
         { ...register('password', {
@@ -94,13 +91,21 @@ function LoginForm() {
         error={errors.password?.message}
       />
 
-      <Button type='submit'>Iniciar Sesión</Button>
+      <Button 
+        type='submit' 
+        className='w-full !bg-gray-800 hover:!bg-gray-700 !text-white font-semibold py-3 mt-2'
+      >
+        Iniciar Sesión
+      </Button>
       
-      <div className='flex flex-col gap-2 items-center'>
+      <div className='flex flex-col gap-3 items-center pt-4 border-t border-gray-200'>
         <p className='text-gray-600 text-sm'>¿No tienes cuenta?</p>
         <Link to='/signup' className='w-full'>
-          <Button type='button' className='w-full bg-green-500 hover:bg-green-600'>
-            Registrarse
+          <Button 
+            type='button' 
+            className='w-full !bg-slate-600 hover:!bg-slate-700 !text-white font-medium'
+          >
+            Crear Cuenta
           </Button>
         </Link>
       </div>

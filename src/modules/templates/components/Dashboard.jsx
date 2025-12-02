@@ -26,7 +26,7 @@ function Dashboard() {
 
   const logout = () => {
     singout();
-    navigate('/login');
+    navigate('/');
   };
 
   const getLinkStyles = ({ isActive }) => (

@@ -46,6 +46,14 @@ function Header({ onSearch, searchTerm = '' }) {
     }
   };
 
+  const handleHomeClick = () => {
+    setLocalSearchTerm('');
+    if (onSearch) {
+      onSearch('');
+    }
+    navigate('/');
+  };
+
   return (
     <>
       <header className={`shadow-md sticky top-0 z-30 transition-all duration-300 ${
@@ -54,9 +62,12 @@ function Header({ onSearch, searchTerm = '' }) {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center gap-4">
             {/* Logo */}
-            <Link to="/" className="text-3xl font-light text-gray-900 hover:text-gray-700 transition">
-              Dsw2025Tpi
-            </Link>
+            <button 
+              onClick={handleHomeClick}
+              className="text-3xl font-stretch-90% text-gray-900 hover:text-gray-700 transition cursor-pointer"
+            >
+              Home
+            </button>
 
             {/* Barra de búsqueda - Desktop (oculta en páginas de órdenes) */}
             {!location.pathname.includes('/my-orders') && !location.pathname.includes('/order/') && (

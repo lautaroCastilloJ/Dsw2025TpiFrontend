@@ -4,9 +4,9 @@ import useAuth from '../hook/useAuth';
 function ProtectedRoute({ children, allowedRoles = [] }) {
   const { isAuthenticated, role } = useAuth();
 
-  // Si no está autenticado, redirigir a login
+  // Si no está autenticado, redirigir a la página principal
   if (!isAuthenticated) {
-    return <Navigate to='/login' replace />;
+    return <Navigate to='/' replace />;
   }
 
   // Si se especificaron roles permitidos y el usuario no tiene el rol adecuado

@@ -69,20 +69,13 @@ function RegisterForm() {
 
   return (
     <form
-      className='
-        flex
-        flex-col
-        gap-4
-        bg-white
-        p-8
-        w-full
-        max-w-md
-        sm:rounded-lg
-        sm:shadow-lg
-      '
+      className='flex flex-col gap-4 bg-white p-8 w-full max-w-md rounded-lg shadow-md border border-gray-200'
       onSubmit={handleSubmit(onValid)}
     >
-      <h2 className="text-2xl font-bold text-center mb-4">Crear Cuenta</h2>
+      <div className='mb-2'>
+        <h2 className="text-2xl font-bold text-gray-800">Crear Cuenta</h2>
+        <p className='text-sm text-gray-600 mt-1'>Completa el formulario para registrarte</p>
+      </div>
 
       <Input
         label='Usuario'
@@ -169,15 +162,23 @@ function RegisterForm() {
         )}
       </div>
 
-      <Button type='submit' className="mt-4">Registrarse</Button>
-      
-      <Button
-        type='button'
-        variant='secondary'
-        onClick={() => navigate('/login')}
+      <Button 
+        type='submit' 
+        className="mt-4 w-full !bg-gray-800 hover:!bg-gray-700 !text-white font-semibold py-3"
       >
-        Ya tengo cuenta
+        Registrarse
       </Button>
+      
+      <div className='flex flex-col gap-3 items-center pt-4 border-t border-gray-200'>
+        <p className='text-gray-600 text-sm'>¿Ya tienes cuenta?</p>
+        <Button
+          type='button'
+          onClick={() => navigate('/login')}
+          className='w-full !bg-slate-600 hover:!bg-slate-700 !text-white font-medium'
+        >
+          Iniciar Sesión
+        </Button>
+      </div>
     </form>
   );
 }

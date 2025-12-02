@@ -241,7 +241,7 @@ function OrderDetailPage() {
                 </span>
                 
                 {/* Botón de actualizar estado si no está en estado final y el usuario es administrador */}
-                {role === 'Administrador' && !['Shipped', 'Delivered', 'Cancelled'].includes(order.status) && (
+                {role === 'Administrador' && !['Delivered', 'Cancelled'].includes(order.status) && (
                   <Button
                     onClick={handleUpdateStatus}
                     disabled={updatingStatus}

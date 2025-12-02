@@ -8,7 +8,7 @@ function CustomerLayout() {
 
   const handleLogout = () => {
     singout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (

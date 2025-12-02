@@ -23,13 +23,13 @@ instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido - limpiar todo y redirigir al login
+      // Token expirado o inválido - limpiar todo y redirigir a la página principal
       localStorage.clear();
       
-      // Solo redirigir si no estamos ya en login o register
+      // Solo redirigir si no estamos ya en la página principal, login o register
       const currentPath = window.location.pathname;
-      if (currentPath !== '/login' && currentPath !== '/register') {
-        window.location.href = '/login';
+      if (currentPath !== '/' && currentPath !== '/login' && currentPath !== '/register') {
+        window.location.href = '/';
       }
     }
     return Promise.reject(error);

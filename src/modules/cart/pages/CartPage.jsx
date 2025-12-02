@@ -214,14 +214,14 @@ function CartPage() {
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Card>
+        <Card className="bg-white border border-gray-200">
           <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-            <svg className="w-24 h-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <h2 className="text-2xl font-semibold text-gray-600">Tu carrito está vacío</h2>
+            <h2 className="text-2xl font-semibold text-gray-700">Tu carrito está vacío</h2>
             <p className="text-gray-500">Agrega productos para comenzar tu compra</p>
-            <Button onClick={() => navigate('/')} className="mt-4">
+            <Button onClick={() => navigate('/')} className="mt-4 !bg-gray-800 hover:!bg-gray-700 !text-white">
               Ver Productos
             </Button>
           </div>
@@ -231,16 +231,16 @@ function CartPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de productos */}
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="bg-white border border-gray-200">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold">Carrito de Compras</h1>
+              <h1 className="text-3xl font-bold text-gray-800">Carrito de Compras</h1>
               <Button 
                 onClick={handleClearCart}
-                className="bg-red-500 hover:bg-red-600"
+                className="!bg-gray-700 hover:!bg-gray-600 !text-white"
               >
                 Vaciar Carrito
               </Button>
@@ -248,12 +248,12 @@ function CartPage() {
 
             <div className="space-y-4">
               {cartItems.map((item) => (
-                <Card key={item.id} className="hover:shadow-md transition-shadow">
+                <Card key={item.id} className="hover:shadow-md transition-shadow border border-gray-200 bg-gray-50">
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
                       <p className="text-sm text-gray-600">SKU: {item.sku}</p>
-                      <p className="text-lg font-bold text-green-600 mt-2">
+                      <p className="text-lg font-bold text-gray-800 mt-2">
                         ${item.currentUnitPrice.toFixed(2)}
                       </p>
                     </div>
@@ -264,7 +264,7 @@ function CartPage() {
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
-                          className="w-8 h-8 rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed flex items-center justify-center"
+                          className="w-8 h-8 rounded bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed flex items-center justify-center text-gray-700 font-semibold"
                         >
                           -
                         </button>
@@ -272,12 +272,12 @@ function CartPage() {
                           type="number"
                           value={item.quantity}
                           onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                          className="w-16 text-center border rounded px-2 py-1"
+                          className="w-16 text-center border border-gray-300 rounded px-2 py-1 font-semibold"
                           min="1"
                         />
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                          className="w-8 h-8 rounded bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                          className="w-8 h-8 rounded bg-gray-300 hover:bg-gray-400 flex items-center justify-center text-gray-700 font-semibold"
                         >
                           +
                         </button>
@@ -285,8 +285,8 @@ function CartPage() {
 
                       {/* Subtotal */}
                       <div className="text-right min-w-[100px]">
-                        <p className="text-sm text-gray-600">Subtotal</p>
-                        <p className="text-lg font-bold">
+                        <p className="text-sm text-gray-600 font-medium">Subtotal</p>
+                        <p className="text-lg font-bold text-gray-800">
                           ${(item.currentUnitPrice * item.quantity).toFixed(2)}
                         </p>
                       </div>
@@ -294,7 +294,7 @@ function CartPage() {
                       {/* Botón eliminar */}
                       <button
                         onClick={() => handleRemove(item.id, item.name)}
-                        className="text-red-500 hover:text-red-700 p-2"
+                        className="text-gray-600 hover:text-gray-800 p-2"
                         title="Eliminar producto"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,31 +311,31 @@ function CartPage() {
 
         {/* Resumen del pedido */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-4">
-            <h2 className="text-2xl font-bold mb-4">Resumen del Pedido</h2>
+          <Card className="sticky top-4 bg-white border border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Resumen del Pedido</h2>
             
             <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-gray-600">
-                <span>Productos ({cartItems.length})</span>
+              <div className="flex justify-between text-gray-700 font-medium">
+                <span>Productos ({cartItems.reduce((total, item) => total + item.quantity, 0)})</span>
                 <span>${getCartTotal().toFixed(2)}</span>
               </div>
-              <div className="border-t pt-3 flex justify-between text-xl font-bold">
-                <span>Total</span>
-                <span className="text-green-600">${getCartTotal().toFixed(2)}</span>
+              <div className="border-t border-gray-300 pt-3 flex justify-between text-xl font-bold">
+                <span className="text-gray-800">Total</span>
+                <span className="text-gray-800">${getCartTotal().toFixed(2)}</span>
               </div>
             </div>
 
             <Button 
               onClick={handleCheckout}
               disabled={processingOrder}
-              className="w-full !bg-green-600 hover:!bg-green-700 !text-white text-lg py-3"
+              className="w-full !bg-gray-800 hover:!bg-gray-700 !text-white text-lg py-3 font-semibold"
             >
               {processingOrder ? 'Procesando...' : 'Finalizar Compra'}
             </Button>
 
             <Button 
               onClick={() => navigate('/')}
-              className="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800"
+              className="w-full mt-3 !bg-gray-200 hover:!bg-gray-300 !text-gray-800 font-medium"
             >
               Seguir Comprando
             </Button>

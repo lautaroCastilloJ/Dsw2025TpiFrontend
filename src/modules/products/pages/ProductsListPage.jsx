@@ -88,9 +88,9 @@ function ProductsListPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Título de la sección */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-serif font-light mb-4 text-gray-900 tracking-wide">Feature Products</h1>
+        <h1 className="text-5xl font-serif font-light mb-4 text-gray-900 tracking-wide">Catálogo de Productos</h1>
         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Discover our carefully curated selection of premium products
+          Distribuidor oficial de Apple en Argentina.
         </p>
       </div>
 
