@@ -44,10 +44,10 @@ function AdminOrdersListPage() {
       // Lógica de búsqueda según el backend
       if (activeSearch.trim()) {
         const searchValue = activeSearch.trim();
-        
+
         // Detectar si es un GUID para enviarlo como customerId
         const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        
+
         if (guidRegex.test(searchValue)) {
           // Es un GUID, enviar como customerId para búsqueda exacta
           params.customerId = searchValue;
@@ -171,6 +171,7 @@ function AdminOrdersListPage() {
               value={status || ''}
               onChange={(e) => {
                 const newStatus = e.target.value || null;
+
                 setStatus(newStatus);
                 setPageNumber(1);
               }}

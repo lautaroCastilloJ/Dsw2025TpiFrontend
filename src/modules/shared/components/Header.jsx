@@ -61,7 +61,7 @@ function Header({ onSearch, searchTerm = '' }) {
   return (
     <>
       <header className={`shadow-md sticky top-0 z-30 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md' : 'bg-white'
-        }`}>
+      }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center gap-4">
             {/* Logo */}
